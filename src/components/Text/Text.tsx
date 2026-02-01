@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text as RNText, TextProps as RNTextProps, TextStyle } from 'react-native';
+import { Text as RNText, type TextProps as RNTextProps, type TextStyle } from 'react-native';
 
 export interface TextProps extends RNTextProps {
   variant?: 'body' | 'caption' | 'label' | 'link';
@@ -34,7 +34,7 @@ export const Text: React.FC<TextProps> = ({
     <RNText
       style={[
         baseStyle,
-        size && { fontSize: size, lineHeight: size * 1.5 },
+        size ? { fontSize: size, lineHeight: size * 1.5 } : undefined,
         weight && { fontWeight: weight },
         color && { color },
         align && { textAlign: align },
