@@ -7,7 +7,7 @@ export default function AuraScreen() {
 
   return (
     <Box flex={1} bg="#FFFFFF" p={20} center>
-      <Heading level={2} mb={30}>Dynamic Island</Heading>
+      <Heading level={2} style={{ marginBottom: 30 }}>Dynamic Island</Heading>
       
       <Box gap={20} width="100%">
         <SmartButton 
@@ -32,7 +32,7 @@ export default function AuraScreen() {
         />
       </Box>
 
-      <Text size={12} color="#9CA3AF" mt={40} align="center">
+      <Text size={12} color="#9CA3AF" align="center" style={{ marginTop: 40 }}>
         Tap the island to interact.
       </Text>
     </Box>

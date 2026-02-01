@@ -33,10 +33,10 @@ export default function InteractionScreen() {
     <Box flex={1} bg="#FFFFFF">
       {showConfetti && <Confetti />}
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 100 }}>
-        <Heading level={2} mb={20}>Interaction</Heading>
+        <Heading level={2} style={{ marginBottom: 20 }}>Interaction</Heading>
 
         <Box mb={30}>
-          <Heading level={5} mb={10}>Smart Button</Heading>
+          <Heading level={5} style={{ marginBottom: 10 }}>Smart Button</Heading>
           <SmartButton
             title="Press Me"
             onPress={triggerConfetti}
@@ -45,7 +45,7 @@ export default function InteractionScreen() {
         </Box>
 
         <Box mb={30}>
-          <Heading level={5} mb={10}>Swipe Button</Heading>
+          <Heading level={5} style={{ marginBottom: 10 }}>Swipe Button</Heading>
           <SwipeButton
             title="Slide to Unlock"
             onComplete={() => Alert.alert('Unlocked!')}
@@ -53,8 +53,8 @@ export default function InteractionScreen() {
         </Box>
 
         <Box mb={30}>
-          <Heading level={5} mb={10}>Switches & Checks</Heading>
-          <Row justify="space-between" mb={10}>
+          <Heading level={5} style={{ marginBottom: 10 }}>Switches & Checks</Heading>
+          <Row justify="space-between" style={{ marginBottom: 10 }}>
              <Text>Fluid Switch</Text>
              <FluidSwitch value={switchVal} onValueChange={setSwitchVal} />
           </Row>
@@ -65,30 +65,34 @@ export default function InteractionScreen() {
         </Box>
 
         <Box mb={30}>
-          <Heading level={5} mb={10}>Segmented Control</Heading>
+          <Heading level={5} style={{ marginBottom: 10 }}>Segmented Control</Heading>
           <SegmentedControl
-            values={['Daily', 'Weekly', 'Monthly']}
+            options={['Daily', 'Weekly', 'Monthly']}
             selectedIndex={segment}
             onChange={(idx) => setSegment(idx)}
           />
         </Box>
 
         <Box mb={30}>
-          <Heading level={5} mb={10}>Radio Group</Heading>
+          <Heading level={5} style={{ marginBottom: 10 }}>Radio Group</Heading>
           <RadioGroup
-            options={['Option 1', 'Option 2', 'Option 3']}
-            selected={radio}
+            options={[
+              { label: 'Option 1', value: 'Option 1' },
+              { label: 'Option 2', value: 'Option 2' },
+              { label: 'Option 3', value: 'Option 3' },
+            ]}
+            value={radio}
             onChange={setRadio}
           />
         </Box>
 
         <Box mb={30}>
-          <Heading level={5} mb={10}>Rating Swipe</Heading>
-          <RatingSwipe onRating={(r) => console.log(r)} />
+          <Heading level={5} style={{ marginBottom: 10 }}>Rating Swipe</Heading>
+          <RatingSwipe onRatingChange={(r) => console.log(r)} />
         </Box>
 
         <Box mb={30}>
-          <Heading level={5} mb={10}>Chips</Heading>
+          <Heading level={5} style={{ marginBottom: 10 }}>Chips</Heading>
           <Row wrap="wrap" gap={10}>
             <Chip label="React Native" onPress={() => {}} />
             <Chip label="TypeScript" variant="outlined" onPress={() => {}} />
@@ -97,9 +101,9 @@ export default function InteractionScreen() {
         </Box>
         
         <Box mb={30}>
-             <Heading level={5} mb={10}>Haptic Tab</Heading>
+             <Heading level={5} style={{ marginBottom: 10 }}>Haptic Tab</Heading>
              <HapticTab onPress={() => console.log('Haptic!')}>
-                <Box p={15} bg="#F3F4F6" borderRadius={8} center>
+                <Box p={15} bg="#F3F4F6" style={{ borderRadius: 8 }} center>
                     <Text>Tap for Haptic Feedback</Text>
                 </Box>
              </HapticTab>

@@ -26,27 +26,27 @@ export default function VisualsScreen() {
   return (
     <Box flex={1} bg="#FFFFFF">
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 50 }}>
-        <Heading level={2} mb={20}>Visual Components</Heading>
+        <Heading level={2} style={{ marginBottom: 20 }}>Visual Components</Heading>
 
         <Box mb={30}>
-          <Heading level={5} mb={10}>Marquee</Heading>
-          <Box bg="#F3F4F6" p={10} borderRadius={8} overflow="hidden">
+          <Heading level={5} style={{ marginBottom: 10 }}>Marquee</Heading>
+          <Box bg="#F3F4F6" p={10} style={{ borderRadius: 8, overflow: 'hidden' }}>
             <Marquee text="Breaking News: React Native Aura is the best UI kit for your next project! " speed={50} />
           </Box>
         </Box>
 
         <Box mb={30}>
-          <Heading level={5} mb={10}>Progress</Heading>
-          <Row justify="space-around" mb={20}>
+          <Heading level={5} style={{ marginBottom: 10 }}>Progress</Heading>
+          <Row justify="space-around" style={{ marginBottom: 20 }}>
              <ProgressCircle progress={0.75} size={80} color="#4F46E5" showText />
              <ProgressCircle progress={progress} size={80} color="#10B981" />
           </Row>
-          <Text mb={5}>Linear Progress</Text>
+          <Text style={{ marginBottom: 5 }}>Linear Progress</Text>
           <ProgressBar progress={0.5} color="#EF4444" height={10} />
         </Box>
 
         <Box mb={30}>
-          <Heading level={5} mb={10}>Skeletons</Heading>
+          <Heading level={5} style={{ marginBottom: 10 }}>Skeletons</Heading>
           <Row gap={15} align="center">
             <Skeleton width={60} height={60} style={{borderRadius: 30}} />
             <Box>
@@ -57,21 +57,21 @@ export default function VisualsScreen() {
         </Box>
 
         <Box mb={30}>
-          <Heading level={5} mb={10}>Pulse Dot</Heading>
-          <Row gap={20} mb={20}>
+          <Heading level={5} style={{ marginBottom: 10 }}>Pulse Dot</Heading>
+          <Row gap={20} style={{ marginBottom: 20 }}>
              <Box center>
                 <PulseDot size={20} color="#3B82F6" />
-                <Text size={12} color="#6B7280" mt={10}>Online</Text>
+                <Text size={12} color="#6B7280" style={{ marginTop: 10 }}>Online</Text>
              </Box>
              <Box center>
                 <PulseDot size={20} color="#EF4444" />
-                <Text size={12} color="#6B7280" mt={10}>Live</Text>
+                <Text size={12} color="#6B7280" style={{ marginTop: 10 }}>Live</Text>
              </Box>
           </Row>
         </Box>
 
         <Box mb={30}>
-           <Heading level={5} mb={10}>Step Tracker</Heading>
+           <Heading level={5} style={{ marginBottom: 10 }}>Step Tracker</Heading>
            <StepTracker 
               steps={['Cart', 'Address', 'Payment', 'Confirm']} 
               currentStep={1} 

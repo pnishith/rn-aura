@@ -23,15 +23,15 @@ export default function InputsScreen() {
   return (
     <Box flex={1} bg="#FFFFFF">
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 50 }}>
-        <Heading level={2} mb={20}>Smart Inputs</Heading>
+        <Heading level={2} style={{ marginBottom: 20 }}>Smart Inputs</Heading>
 
         <Box mb={30}>
-          <Heading level={5} mb={10}>OTP Input</Heading>
+          <Heading level={5} style={{ marginBottom: 10 }}>OTP Input</Heading>
           <OtpInput value={otp} onChange={setOtp} length={4} />
         </Box>
 
         <Box mb={30}>
-          <Heading level={5} mb={10}>Currency Input</Heading>
+          <Heading level={5} style={{ marginBottom: 10 }}>Currency Input</Heading>
           <CurrencyInput
             value={currency}
             onChangeText={setCurrency}
@@ -41,7 +41,7 @@ export default function InputsScreen() {
         </Box>
 
         <Box mb={30}>
-          <Heading level={5} mb={10}>Credit Card Input</Heading>
+          <Heading level={5} style={{ marginBottom: 10 }}>Credit Card Input</Heading>
           <CreditCardInput
             value={card}
             onChangeText={setCard}
@@ -50,16 +50,16 @@ export default function InputsScreen() {
         </Box>
 
         <Box mb={30}>
-          <Heading level={5} mb={10}>Phone Input</Heading>
+          <Heading level={5} style={{ marginBottom: 10 }}>Phone Input</Heading>
           <PhoneInput
             value={phone}
             onChangeText={setPhone}
-            defaultCountry="US"
+            // defaultCountry="US"
           />
         </Box>
 
         <Box mb={30}>
-          <Heading level={5} mb={10}>Floating Input</Heading>
+          <Heading level={5} style={{ marginBottom: 10 }}>Floating Input</Heading>
           <FloatingInput
             label="Email Address"
             value={floating}
@@ -68,7 +68,7 @@ export default function InputsScreen() {
         </Box>
 
         <Box mb={30}>
-          <Heading level={5} mb={10}>Search Field</Heading>
+          <Heading level={5} style={{ marginBottom: 10 }}>Search Field</Heading>
           <SearchField
             value={search}
             onChangeText={setSearch}

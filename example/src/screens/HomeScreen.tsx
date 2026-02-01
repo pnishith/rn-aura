@@ -17,7 +17,7 @@ export default function HomeScreen() {
 
   return (
     <Box flex={1} bg="#F2F2F7" p={20}>
-      <Heading level={2} mb={20}>
+      <Heading level={2} style={{ marginBottom: 20 }}>
         RN Aura Kitchen Sink
       </Heading>
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
@@ -30,11 +30,13 @@ export default function HomeScreen() {
               <Box
                 bg="white"
                 p={20}
-                borderRadius={12}
-                shadowColor="#000"
-                shadowOpacity={0.05}
-                shadowRadius={10}
-                elevation={2}
+                style={{
+                  borderRadius: 12,
+                  shadowColor: '#000',
+                  shadowOpacity: 0.05,
+                  shadowRadius: 10,
+                }}
+                // elevation={2}
               >
                 <Row justify="space-between">
                   <Heading level={5}>{cat.name}</Heading>
