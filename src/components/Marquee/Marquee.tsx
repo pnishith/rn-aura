@@ -1,5 +1,11 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, ViewProps, LayoutChangeEvent } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  type LayoutChangeEvent,
+  type ViewProps,
+} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
