@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, Text, Pressable, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  type TextStyle,
+  type ViewStyle,
+} from 'react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
