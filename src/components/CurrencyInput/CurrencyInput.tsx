@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { TextInput, StyleSheet, View, Text, TextInputProps } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  type TextInputProps,
+} from 'react-native';
+
 import Animated, { useAnimatedStyle, withTiming, interpolateColor, useSharedValue } from 'react-native-reanimated';
 
 interface CurrencyInputProps extends TextInputProps {
@@ -20,14 +26,13 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
   style,
   ...props
 }) => {
-  const [isFocused, setIsFocused] = useState(false);
+  const [, setIsFocused] = useState(false); // Removed unused isFocused read
   const focusProgress = useSharedValue(0);
 
   const formatCurrency = (val: string) => {
-    // Basic implementation: remove non-digits, format
     const number = val.replace(/[^0-9]/g, '');
     if (!number) return '';
-    const amount = parseInt(number) / 100;
+    const amount = parseInt(number, 10) / 100;
     return amount.toLocaleString('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
@@ -35,7 +40,6 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
   };
 
   const handleChange = (text: string) => {
-    // Strip currency symbol and commas to get raw number
     const raw = text.replace(/[^0-9]/g, '');
     if (onChangeValue) onChangeValue(raw);
     if (onChangeText) onChangeText(raw);
