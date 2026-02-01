@@ -43,7 +43,7 @@ export const Badge: React.FC<BadgeProps> = ({
   useEffect(() => {
     // Pulse animation on change
     scale.value = withSequence(
-      withSpring(1.2, { duration: 100 }),
+      withSpring(1.2, { damping: 10, stiffness: 400 }),
       withSpring(1, { damping: 10, stiffness: 200 })
     );
   }, [count, label]);
