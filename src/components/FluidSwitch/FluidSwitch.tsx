@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import { Pressable, StyleSheet, ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, type ViewStyle } from 'react-native';
+
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
   withSpring, 
   interpolate, 
   interpolateColor,
-  useDerivedValue
 } from 'react-native-reanimated';
 
 export interface FluidSwitchProps {
@@ -31,8 +31,8 @@ export const FluidSwitch: React.FC<FluidSwitchProps> = ({
   activeColor = '#000',
   inactiveColor = '#E0E0E0',
   thumbColor = '#FFF',
-  iconOn,
-  iconOff,
+  // iconOn,
+  // iconOff,
   style,
 }) => {
   const progress = useSharedValue(value ? 1 : 0);
@@ -61,28 +61,10 @@ export const FluidSwitch: React.FC<FluidSwitchProps> = ({
       [0, 1],
       [0, WIDTH - THUMB_SIZE - PADDING * 2]
     );
-    
-    // Elastic effect: widen the thumb when moving
-    const widthScale = interpolate(
-      Math.abs(progress.value - 0.5), // 0 at edges, 0.5 at center
-      [0, 0.5],
-      [1, 1.2] 
-    );
-    // Inverse logic: 0.5 diff means edge (0 or 1), 0 diff means center (0.5)
-    // Actually: value goes 0 -> 1. 
-    // center is 0.5. |0.5-0.5| = 0. |0-0.5| = 0.5. |1-0.5| = 0.5.
-    // So edges are 0.5, center is 0.
-    
-    // I want center to be wider.
-    const elasticWidth = interpolate(
-      progress.value,
-      [0, 0.5, 1],
-      [THUMB_SIZE, THUMB_SIZE * 1.25, THUMB_SIZE]
-    );
 
     return {
       transform: [{ translateX }],
-      width: elasticWidth,
+      width: THUMB_SIZE,
     };
   });
 
@@ -91,7 +73,7 @@ export const FluidSwitch: React.FC<FluidSwitchProps> = ({
   };
 
   return (
-    <Pressable onPress={handlePress} activeOpacity={0.8}>
+    <Pressable onPress={handlePress}>
       <Animated.View style={[styles.container, style, rContainerStyle]}>
         <Animated.View style={[styles.thumb, { backgroundColor: thumbColor }, rThumbStyle]}>
           {/* Optional: Icons can be placed here or in background */}
