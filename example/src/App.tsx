@@ -26,7 +26,6 @@ export default function App() {
               screenOptions={{
                 headerStyle: { backgroundColor: '#FFFFFF' },
                 headerTitleStyle: { fontWeight: '600', color: '#111827' },
-                headerShadowVisible: false,
                 contentStyle: { backgroundColor: '#FFFFFF' }
               }}
             >
