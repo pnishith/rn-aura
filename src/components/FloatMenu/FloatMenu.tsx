@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, Text, ViewStyle } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  type ViewStyle,
+} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
-  withTiming,
-  withDelay,
   interpolate,
+  type SharedValue,
 } from 'react-native-reanimated';
 
 interface ActionItem {
@@ -22,6 +27,54 @@ interface FloatMenuProps {
   style?: ViewStyle;
 }
 
+interface ActionButtonProps {
+  action: ActionItem;
+  index: number;
+  totalActions: number;
+  openProgress: SharedValue<number>;
+  color: string;
+}
+
+const ActionButton: React.FC<ActionButtonProps> = ({
+  action,
+  index,
+  totalActions,
+  openProgress,
+  color,
+}) => {
+  const animatedActionStyle = useAnimatedStyle(() => {
+    return {
+      opacity: openProgress.value,
+      transform: [
+        {
+          translateY: interpolate(
+            openProgress.value,
+            [0, 1],
+            [0, -10 * (totalActions - index) - 50]
+          ),
+        },
+        { scale: openProgress.value },
+      ],
+    };
+  });
+
+  return (
+    <Animated.View style={[styles.actionButtonContainer, animatedActionStyle]}>
+      {action.label && (
+        <View style={styles.labelContainer}>
+          <Text style={styles.labelText}>{action.label}</Text>
+        </View>
+      )}
+      <TouchableOpacity
+        style={[styles.smallButton, { backgroundColor: color }]}
+        onPress={action.onPress}
+      >
+        {action.icon}
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
+
 export const FloatMenu: React.FC<FloatMenuProps> = ({
   triggerIcon,
   actions,
@@ -32,58 +85,52 @@ export const FloatMenu: React.FC<FloatMenuProps> = ({
   const openProgress = useSharedValue(0);
 
   const toggleMenu = () => {
-    setIsOpen(!isOpen);
-    openProgress.value = withSpring(!isOpen ? 1 : 0, { damping: 15, stiffness: 100 });
+    const nextState = !isOpen;
+    setIsOpen(nextState);
+    openProgress.value = withSpring(nextState ? 1 : 0, {
+      damping: 15,
+      stiffness: 100,
+    });
   };
 
   const animatedTriggerStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ rotate: interpolate(openProgress.value, [0, 1], [0, 45]) + 'deg' }],
+      transform: [
+        {
+          rotate: `${interpolate(openProgress.value, [0, 1], [0, 45])}deg`,
+        },
+      ],
     };
   });
 
   return (
     <View style={[styles.container, style]} pointerEvents="box-none">
       <View style={styles.actionsContainer} pointerEvents="box-none">
-        {actions.map((action, index) => {
-          const animatedActionStyle = useAnimatedStyle(() => {
-            return {
-              opacity: openProgress.value,
-              transform: [
-                { translateY: interpolate(openProgress.value, [0, 1], [0, -10 * (actions.length - index) - 50]) },
-                { scale: openProgress.value },
-              ],
-            };
-          });
-
-          return (
-            <Animated.View key={index} style={[styles.actionButtonContainer, animatedActionStyle]}>
-              {action.label && (
-                <View style={styles.labelContainer}>
-                  <Text style={styles.labelText}>{action.label}</Text>
-                </View>
-              )}
-              <TouchableOpacity
-                style={[styles.smallButton, { backgroundColor: color }]}
-                onPress={() => {
-                  action.onPress();
-                  toggleMenu();
-                }}
-              >
-                {action.icon}
-              </TouchableOpacity>
-            </Animated.View>
-          );
-        })}
+        {actions.map((action, index) => (
+          <ActionButton
+            key={index}
+            action={{
+                ...action,
+                onPress: () => {
+                    action.onPress();
+                    toggleMenu();
+                }
+            }}
+            index={index}
+            totalActions={actions.length}
+            openProgress={openProgress}
+            color={color}
+          />
+        ))}
       </View>
-      
+
       <TouchableOpacity
         style={[styles.triggerButton, { backgroundColor: color }]}
         onPress={toggleMenu}
         activeOpacity={0.8}
       >
         <Animated.View style={animatedTriggerStyle}>
-          {triggerIcon || <Text style={{fontSize: 24, color: 'white'}}>+</Text>}
+          {triggerIcon || <Text style={{ fontSize: 24, color: 'white' }}>+</Text>}
         </Animated.View>
       </TouchableOpacity>
     </View>
