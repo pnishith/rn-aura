@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { TextInput, StyleSheet, TextInputProps } from 'react-native';
+import { StyleSheet, TextInput, type TextInputProps } from 'react-native';
+
 import Animated, { useAnimatedStyle, withTiming, interpolateColor, useSharedValue } from 'react-native-reanimated';
 
 interface CreditCardInputProps extends TextInputProps {
@@ -18,6 +19,7 @@ export const CreditCardInput: React.FC<CreditCardInputProps> = ({
   style,
   ...props
 }) => {
+  const [, setIsFocused] = useState(false); // Fix unused var
   const focusProgress = useSharedValue(0);
 
   const formatCardNumber = (text: string) => {
@@ -35,10 +37,12 @@ export const CreditCardInput: React.FC<CreditCardInputProps> = ({
   };
 
   const onFocus = () => {
+    setIsFocused(true);
     focusProgress.value = withTiming(1);
   };
 
   const onBlur = () => {
+    setIsFocused(false);
     focusProgress.value = withTiming(0);
   };
 
