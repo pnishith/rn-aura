@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  Image,
   StyleSheet,
   View,
+  type ImageProps,
+  type ImageStyle,
+  type ViewStyle,
 } from 'react-native';
-import type {
-  ImageProps,
-  ViewStyle,
-  ImageStyle,
-} from 'react-native';
+
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -29,11 +27,9 @@ export const SmartImage: React.FC<SmartImageProps> = ({
   containerStyle,
   ...props
 }) => {
-  const [loaded, setLoaded] = useState(false);
   const opacity = useSharedValue(0);
 
   const handleLoad = (e: any) => {
-    setLoaded(true);
     opacity.value = withTiming(1, { duration: transitionDuration });
     if (props.onLoad) props.onLoad(e);
   };
