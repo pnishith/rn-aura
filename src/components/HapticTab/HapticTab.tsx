@@ -1,11 +1,15 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, TouchableOpacityProps } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  type TouchableOpacityProps,
+} from 'react-native';
+
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withSequence,
-  withTiming,
 } from 'react-native-reanimated';
 
 // Note: Actual Haptics require expo-haptics or react-native-haptic-feedback
@@ -13,7 +17,7 @@ import Animated, {
 // The user would integrate the actual haptic call in onPress
 
 interface HapticTabProps extends TouchableOpacityProps {
-  label: string;
+  label?: string;
   selected?: boolean;
 }
 
@@ -22,6 +26,7 @@ export const HapticTab: React.FC<HapticTabProps> = ({
   selected = false,
   style,
   onPress,
+  children,
   ...props
 }) => {
   const scale = useSharedValue(1);
@@ -42,7 +47,7 @@ export const HapticTab: React.FC<HapticTabProps> = ({
   });
 
   return (
-    <Animated.View style={[styles.wrapper, animatedStyle, style]}>
+    <Animated.View style={[styles.wrapper, animatedStyle as any, style]}>
       <TouchableOpacity
         activeOpacity={1}
         onPressIn={handlePressIn}
@@ -51,9 +56,11 @@ export const HapticTab: React.FC<HapticTabProps> = ({
         style={styles.button}
         {...props}
       >
-        <Text style={[styles.text, { color: selected ? 'white' : '#007AFF' }]}>
-          {label}
-        </Text>
+        {children || (
+          <Text style={[styles.text, { color: selected ? 'white' : '#007AFF' }]}>
+            {label}
+          </Text>
+        )}
       </TouchableOpacity>
     </Animated.View>
   );
