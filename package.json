@@ -79,14 +79,15 @@
     "react-native-gesture-handler": "^2.30.0",
     "react-native-reanimated": "^4.2.1",
     "react-native-safe-area-context": "^5.6.2",
+    "react-native-worklets": "0.5.1",
     "release-it": "^19.0.4",
     "typescript": "^5.9.2"
   },
   "peerDependencies": {
     "react": "*",
     "react-native": "*",
-    "react-native-reanimated": ">=3.0.0",
     "react-native-gesture-handler": ">=2.0.0",
+    "react-native-reanimated": ">=3.0.0",
     "react-native-safe-area-context": ">=4.0.0"
   },
   "workspaces": [
