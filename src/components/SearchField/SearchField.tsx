@@ -1,11 +1,20 @@
 import React, { useRef, useState } from 'react';
-import { TextInput, View, Text, Pressable, StyleSheet, ViewStyle, TextStyle, TextInputProps } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  type TextInputProps,
+  type TextStyle,
+  type ViewStyle,
+} from 'react-native';
+
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
   withSpring, 
   withTiming,
-  Layout
 } from 'react-native-reanimated';
 
 export interface SearchFieldProps extends TextInputProps {
@@ -42,7 +51,7 @@ export const SearchField: React.FC<SearchFieldProps> = ({
   }, [isFocused]);
 
   const handleCancel = () => {
-    inputRef.current?.blur();
+    (inputRef.current as any)?.blur();
     onChangeText?.('');
     onCancel?.();
   };
@@ -59,7 +68,7 @@ export const SearchField: React.FC<SearchFieldProps> = ({
       <View style={styles.inputWrapper}>
         <Text style={styles.searchIcon}>🔍</Text>
         <TextInput
-          ref={inputRef}
+          ref={inputRef as any}
           style={[styles.input, inputStyle]}
           value={value}
           onChangeText={onChangeText}
