@@ -1,12 +1,10 @@
 import React, { useEffect } from 'react';
-import { Pressable, StyleSheet, ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, type ViewStyle } from 'react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
   withSpring, 
-  withSequence,
-  withDelay,
-  interpolateColor
+  withSequence
 } from 'react-native-reanimated';
 
 export interface BouncingCheckboxProps {
@@ -31,7 +29,7 @@ export const BouncingCheckbox: React.FC<BouncingCheckboxProps> = ({
     if (checked) {
       checkScale.value = withSpring(1, { damping: 12, stiffness: 200 });
       scale.value = withSequence(
-        withSpring(0.8, { duration: 50 }),
+        withSpring(0.8, { damping: 15, stiffness: 400 }),
         withSpring(1, { damping: 8, stiffness: 300 })
       );
     } else {
