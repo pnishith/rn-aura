@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
   runOnJS,
 } from 'react-native-reanimated';
-
-// Reanimated 4+ Worklets migration helper
-const scheduleOnJS = (global as any).Worklets?.scheduleOnJS 
-  ? (fn: () => void, ...args: any[]) => (global as any).Worklets.scheduleOnJS(fn)(...args)
-  : runOnJS;
 
 interface RatingSwipeProps {
   onRatingChange: (rating: number) => void;
@@ -38,11 +32,11 @@ export const RatingSwipe: React.FC<RatingSwipeProps> = ({
       // Update shared value immediately for UI feedback if we were to move stars to Reanimated
       if (ratingSv.value !== newRating) {
          ratingSv.value = newRating;
-         scheduleOnJS(setJsRating)(newRating);
+         runOnJS(setJsRating)(newRating);
       }
     })
     .onEnd(() => {
-      scheduleOnJS(onRatingChange)(ratingSv.value);
+      runOnJS(onRatingChange)(ratingSv.value);
     });
 
   const animatedFillStyle = useAnimatedStyle(() => {
