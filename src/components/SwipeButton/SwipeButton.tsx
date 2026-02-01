@@ -3,7 +3,14 @@ import React, { useState } from 'react';
 // We will rely on user providing an icon or default to a simple text character if no icon library is present
 // But for a premium library, we should avoid drawing shapes with View borders.
 
-import { StyleSheet, View, Text, ViewStyle, TextStyle } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  type TextStyle,
+  type ViewStyle,
+} from 'react-native';
+
 // Note: We don't import vector icons here directly to avoid bloating the core bundle
 // if the user doesn't use them. We expect the user to pass `thumbIcon`.
 // However, for the default, we will use a simple chevron character > which is safe and standard.
