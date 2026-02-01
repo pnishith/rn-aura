@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { StyleSheet, View, Dimensions, Platform } from 'react-native';
+import React, { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { Dimensions, Platform, StyleSheet, View } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
@@ -7,11 +7,6 @@ import Animated, {
   withSpring,
   withTiming,
   Easing,
-  Layout,
-  Entering,
-  Exiting,
-  ZoomIn,
-  FadeOut,
   runOnJS,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -65,9 +60,10 @@ export const AuraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const borderRadius = useSharedValue(20);
   const translateY = useSharedValue(-100); // Start off-screen
 
-  const showAura = useCallback((mode: AuraMode, newContent?: ReactNode, newIcon?: ReactNode) => {
+  const showAura = useCallback((mode: AuraMode, newContent?: ReactNode, _newIcon?: ReactNode) => {
     setActive(true);
     setContent(newContent);
+    // _newIcon is reserved for future implementation of icon mode
     translateY.value = withSpring(insets.top + (Platform.OS === 'android' ? 10 : 2), { 
         damping: 30, 
         stiffness: 200, 
@@ -103,10 +99,6 @@ export const AuraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const hideAura = useCallback(() => {
     showAura('silent');
   }, [showAura]);
-
-  const toggleAura = useCallback(() => {
-    if (active) hideAura(); // Allow manual dismissal by context consumer if needed
-  }, [active, hideAura]);
 
   // Styles
   const animatedStyle = useAnimatedStyle(() => {
@@ -146,8 +138,11 @@ export const AuraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           <GestureDetector gesture={pan}>
             <Animated.View style={[styles.island, animatedStyle]}>
                 <View style={styles.contentContainer}>
-                {/* Content fades in/out based on mode */}
-                {content}
+                {typeof content === 'string' ? (
+                  <Animated.Text style={{ color: 'white' }}>{content}</Animated.Text>
+                ) : (
+                  content
+                )}
                 </View>
             </Animated.View>
           </GestureDetector>
