@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Image, Dimensions, TouchableWithoutFeedback, ImageSourcePropType } from 'react-native';
+import {
+  Dimensions,
+  Image,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  View,
+  type ImageSourcePropType,
+} from 'react-native';
+
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -87,7 +95,9 @@ export const StoryViewer: React.FC<StoryViewerProps> = ({ stories, onComplete })
     }
   };
 
-  const currentStory = stories[currentIndex];
+  const currentStory = stories?.[currentIndex];
+
+  if (!currentStory) return null;
 
   return (
     <View style={styles.container}>
