@@ -1,23 +1,28 @@
-import React, { useEffect } from 'react';
-import { ActivityIndicator, Text, Pressable, StyleSheet, ViewStyle, TextStyle, View } from 'react-native';
+import React from 'react';
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  View,
+  type TextStyle,
+  type ViewStyle,
+} from 'react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
   withSpring, 
   withTiming, 
-  interpolate,
-  Extrapolation,
-  interpolateColor
 } from 'react-native-reanimated';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export interface SmartButtonProps {
-  label: string;
+  label?: string;
+  title?: string;
   onPress?: () => void;
   loading?: boolean;
   disabled?: boolean;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'outline' | 'outlined' | 'ghost';
   style?: ViewStyle;
   labelStyle?: TextStyle;
   hapticEnabled?: boolean;
@@ -25,16 +30,18 @@ export interface SmartButtonProps {
 
 export const SmartButton: React.FC<SmartButtonProps> = ({
   label,
+  title,
   onPress,
   loading = false,
   disabled = false,
   variant = 'primary',
   style,
   labelStyle,
-  hapticEnabled = true,
+  // hapticEnabled = true,
 }) => {
+  const buttonLabel = label || title || 'Button';
   const scale = useSharedValue(1);
-  const opacity = useSharedValue(1);
+  // const opacity = useSharedValue(1);
 
   const handlePressIn = () => {
     if (disabled || loading) return;
@@ -49,7 +56,7 @@ export const SmartButton: React.FC<SmartButtonProps> = ({
   const rStyle = useAnimatedStyle(() => {
     const backgroundColor = variant === 'primary' ? '#000' : 
                           variant === 'secondary' ? '#F0F0F0' : 
-                          variant === 'outline' ? 'transparent' : 'transparent';
+                          variant === 'outline' || variant === 'outlined' ? 'transparent' : 'transparent';
     
     return {
       transform: [{ scale: scale.value }],
@@ -77,7 +84,7 @@ export const SmartButton: React.FC<SmartButtonProps> = ({
       disabled={disabled || loading}
       style={[
         styles.container,
-        variant === 'outline' && styles.outline,
+        (variant === 'outline' || variant === 'outlined') && styles.outline,
         style,
         rStyle,
       ]}
@@ -94,7 +101,7 @@ export const SmartButton: React.FC<SmartButtonProps> = ({
           labelStyle,
           rTextStyle
         ]}>
-          {label}
+          {buttonLabel}
         </Animated.Text>
       </Animated.View>
     </AnimatedPressable>
