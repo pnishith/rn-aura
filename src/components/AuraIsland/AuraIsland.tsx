@@ -1,15 +1,18 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { StyleSheet, View, Dimensions, Platform } from 'react-native';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
   withTiming,
+  Easing,
   Layout,
   Entering,
   Exiting,
   ZoomIn,
   FadeOut,
+  runOnJS,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -101,6 +104,10 @@ export const AuraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     showAura('silent');
   }, [showAura]);
 
+  const toggleAura = useCallback(() => {
+    if (active) hideAura(); // Allow manual dismissal by context consumer if needed
+  }, [active, hideAura]);
+
   // Styles
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -114,6 +121,21 @@ export const AuraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
   });
 
+  const pan = Gesture.Pan()
+    .onUpdate((e) => {
+        // Allow dragging up to dismiss
+        if (e.translationY < 0) {
+            translateY.value = withSpring(insets.top + e.translationY, { damping: 20, stiffness: 400 });
+        }
+    })
+    .onEnd((e) => {
+        if (e.translationY < -20) {
+            runOnJS(hideAura)();
+        } else {
+            translateY.value = withSpring(insets.top + (Platform.OS === 'android' ? 10 : 2));
+        }
+    });
+
   return (
     <AuraContext.Provider value={{ showAura, hideAura }}>
       {children}
@@ -121,12 +143,14 @@ export const AuraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       {/* Floating Island Layer */}
       {active && (
         <View style={styles.overlay} pointerEvents="box-none">
-          <Animated.View style={[styles.island, animatedStyle]}>
-            <View style={styles.contentContainer}>
-               {/* Content fades in/out based on mode */}
-               {content}
-            </View>
-          </Animated.View>
+          <GestureDetector gesture={pan}>
+            <Animated.View style={[styles.island, animatedStyle]}>
+                <View style={styles.contentContainer}>
+                {/* Content fades in/out based on mode */}
+                {content}
+                </View>
+            </Animated.View>
+          </GestureDetector>
         </View>
       )}
     </AuraContext.Provider>
