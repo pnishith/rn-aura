@@ -36,7 +36,7 @@ export default function InteractionScreen() {
         <Heading level={2} mb={20}>Interaction</Heading>
 
         <Box mb={30}>
-          <Typography variant="h5" mb={10}>Smart Button</Typography>
+          <Heading level={5} mb={10}>Smart Button</Heading>
           <SmartButton
             title="Press Me"
             onPress={triggerConfetti}
