@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet, ViewStyle } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type ViewStyle,
+} from 'react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
   withTiming, 
-  withSpring,
-  runOnUI,
-  measure,
-  useAnimatedRef
+  withSpring
 } from 'react-native-reanimated';
 
 export interface AccordionItemProps {
