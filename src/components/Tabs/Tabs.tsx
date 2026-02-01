@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet, ViewStyle, TextStyle, LayoutChangeEvent } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type LayoutChangeEvent,
+  type TextStyle,
+  type ViewStyle,
+} from 'react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
