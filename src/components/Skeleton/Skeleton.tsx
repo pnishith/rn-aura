@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, View, ViewStyle, Dimensions } from 'react-native';
+import { StyleSheet, type ViewStyle } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withRepeat,
   withTiming,
   withSequence,
-  interpolate,
 } from 'react-native-reanimated';
 
 interface SkeletonProps {
