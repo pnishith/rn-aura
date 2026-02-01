@@ -16,14 +16,14 @@ import Animated, {
 } from 'react-native-reanimated';
 
 export interface TabItem {
-  key: string;
+  key: number;
   title: string;
 }
 
 export interface TabsProps {
   tabs: TabItem[];
-  activeKey: string;
-  onChange: (key: string) => void;
+  activeKey: number;
+  onChange: (key: number) => void;
   activeColor?: string;
   inactiveColor?: string;
   style?: ViewStyle;
@@ -42,7 +42,7 @@ export const Tabs: React.FC<TabsProps> = ({
   labelStyle,
 }) => {
   const [containerWidth, setContainerWidth] = useState(0);
-  const activeIndex = tabs.findIndex(t => t.key === activeKey);
+  const activeIndex = activeKey;
   
   const indicatorX = useSharedValue(0);
   const indicatorWidth = useSharedValue(0);
