@@ -11,7 +11,7 @@ import Animated, { useAnimatedStyle, withTiming, interpolateColor, useSharedValu
 
 interface PhoneInputProps extends TextInputProps {
   value: string;
-  onChangeValue: (value: string) => void;
+  onChangeValue?: (value: string) => void;
   countryCode?: string;
   activeColor?: string;
   inactiveColor?: string;
