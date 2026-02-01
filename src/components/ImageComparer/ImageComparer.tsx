@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Image, ImageSourcePropType, LayoutChangeEvent } from 'react-native';
+import {
+  Image,
+  StyleSheet,
+  View,
+  type ImageSourcePropType,
+  type LayoutChangeEvent,
+} from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
 interface ImageComparerProps {
   beforeImage: ImageSourcePropType;
