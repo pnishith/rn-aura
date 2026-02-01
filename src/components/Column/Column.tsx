@@ -1,6 +1,6 @@
 import React from 'react';
-import { View } from 'react-native';
-import type { ViewStyle, ViewProps } from 'react-native';
+import { View, type ViewProps, type ViewStyle } from 'react-native';
+
 
 export interface ColumnProps extends ViewProps {
   gap?: number;
