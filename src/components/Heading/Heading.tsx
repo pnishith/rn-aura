@@ -1,7 +1,7 @@
 import React from 'react';
-import { Text as RNText, StyleSheet, TextProps as RNTextProps, TextStyle } from 'react-native';
+import { Text, type TextProps, type TextStyle } from 'react-native';
 
-export interface HeadingProps extends RNTextProps {
+export interface HeadingProps extends TextProps {
   level?: 1 | 2 | 3 | 4 | 5 | 6; // h1 to h6
   size?: number; // Manual override
   weight?: TextStyle['fontWeight'];
@@ -34,7 +34,7 @@ export const Heading: React.FC<HeadingProps> = ({
   const lineHeight = fontSize * 1.25; // Good standard leading
 
   return (
-    <RNText
+    <Text
       style={[
         {
           fontSize,
@@ -48,6 +48,6 @@ export const Heading: React.FC<HeadingProps> = ({
       {...props}
     >
       {children}
-    </RNText>
+    </Text>
   );
 };
