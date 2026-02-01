@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -16,6 +16,7 @@ interface ProgressCircleProps {
   size?: number;
   color?: string;
   thickness?: number;
+  showText?: boolean;
 }
 
 export const ProgressCircle: React.FC<ProgressCircleProps> = ({
@@ -23,6 +24,7 @@ export const ProgressCircle: React.FC<ProgressCircleProps> = ({
   size = 100,
   color = '#007AFF',
   thickness = 10,
+  showText = true,
 }) => {
   const progressValue = useSharedValue(0);
 
@@ -109,7 +111,7 @@ export const ProgressCircle: React.FC<ProgressCircleProps> = ({
        </View>
 
       <View style={styles.textContainer}>
-         <Text style={styles.text}>{Math.round(progress * 100)}%</Text>
+         {showText && <Text style={styles.text}>{Math.round(progress * 100)}%</Text>}
       </View>
     </View>
   );
