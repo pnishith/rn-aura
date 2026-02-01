@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  View,
-  TextInput,
-  StyleSheet,
   Pressable,
-  TextStyle,
-  ViewStyle,
-  Platform,
+  StyleSheet,
+  TextInput,
+  View,
+  type TextStyle,
+  type ViewStyle,
 } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -15,9 +14,8 @@ import Animated, {
   withRepeat,
   withSequence,
   withSpring,
-  interpolateColor,
-  Easing,
   ZoomIn,
+  type SharedValue,
 } from 'react-native-reanimated';
 
 export interface OtpInputProps {
@@ -35,6 +33,92 @@ export interface OtpInputProps {
   cursorColor?: string;
   placeholder?: string;
 }
+
+interface OtpBoxProps {
+  index: number;
+  char?: string;
+  isFocused: boolean;
+  isCurrent: boolean;
+  error: boolean;
+  secure: boolean;
+  cursorColor: string;
+  boxStyle?: ViewStyle;
+  activeBoxStyle?: ViewStyle;
+  errorBoxStyle?: ViewStyle;
+  textStyle?: TextStyle;
+  cursorOpacity: SharedValue<number>;
+}
+
+const OtpBox: React.FC<OtpBoxProps> = ({
+  index,
+  char,
+  isFocused,
+  isCurrent,
+  error,
+  secure,
+  cursorColor,
+  boxStyle,
+  activeBoxStyle,
+  errorBoxStyle,
+  textStyle,
+  cursorOpacity,
+}) => {
+  const isActive = isFocused && isCurrent;
+  const isFilled = !!char;
+  
+  const scale = useSharedValue(1);
+  
+  useEffect(() => {
+    if (isActive || isFilled) {
+      scale.value = withSpring(1.05, { damping: 10, stiffness: 200 });
+    } else {
+      scale.value = withSpring(1);
+    }
+  }, [isActive, isFilled]);
+
+  const animatedBoxStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+      borderColor: !!error
+        ? '#EF4444'
+        : isActive
+        ? cursorColor
+        : isFilled
+        ? '#9CA3AF'
+        : '#E5E7EB',
+      borderWidth: (isActive || !!error) ? 2 : 1,
+    };
+  });
+
+  const cursorAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: isActive ? cursorOpacity.value : 0,
+    };
+  });
+
+  return (
+    <Animated.View
+      entering={ZoomIn.delay(index * 50).springify()}
+      style={[styles.box, boxStyle, animatedBoxStyle, error && errorBoxStyle, isActive && activeBoxStyle]}
+    >
+      {isFilled ? (
+        <Animated.Text style={[styles.text, textStyle]}>
+          {secure ? '•' : char}
+        </Animated.Text>
+      ) : (
+        isActive && (
+          <Animated.View
+            style={[
+              styles.cursor,
+              { backgroundColor: cursorColor },
+              cursorAnimatedStyle,
+            ]}
+          />
+        )
+      )}
+    </Animated.View>
+  );
+};
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -68,7 +152,7 @@ export const OtpInput: React.FC<OtpInputProps> = ({
         withTiming(0, { duration: 50 })
       );
     }
-  }, [error, shake]);
+  }, [error]);
 
   // Cursor blink loop
   useEffect(() => {
@@ -84,14 +168,13 @@ export const OtpInput: React.FC<OtpInputProps> = ({
     } else {
       cursorOpacity.value = withTiming(0);
     }
-  }, [isFocused, cursorOpacity]);
+  }, [isFocused]);
 
   const handlePress = () => {
-    inputRef.current?.focus();
+    (inputRef.current as any)?.focus?.();
   };
 
   const handleChangeText = (text: string) => {
-    // Filter non-numeric if needed (optional, keeping it flexible for now)
     if (text.length > length) return;
     onChange(text);
   };
@@ -102,67 +185,6 @@ export const OtpInput: React.FC<OtpInputProps> = ({
     };
   });
 
-  const renderBox = (index: number) => {
-    const char = value[index];
-    const isActive = isFocused && index === value.length; // Cursor position
-    const isFilled = index < value.length;
-    
-    // Scale animation for active/filled state
-    const scale = useSharedValue(1);
-    
-    useEffect(() => {
-      if (isActive || isFilled) {
-        scale.value = withSpring(1.05, { damping: 10, stiffness: 200 });
-      } else {
-        scale.value = withSpring(1);
-      }
-    }, [isActive, isFilled, scale]);
-
-    const animatedBoxStyle = useAnimatedStyle(() => {
-      return {
-        transform: [{ scale: scale.value }],
-        borderColor: error
-          ? '#EF4444' // Red-500
-          : isActive
-          ? cursorColor
-          : isFilled
-          ? '#9CA3AF' // Gray-400
-          : '#E5E7EB', // Gray-200
-        borderWidth: isActive || error ? 2 : 1,
-      };
-    });
-
-    const cursorAnimatedStyle = useAnimatedStyle(() => {
-      return {
-        opacity: isActive ? cursorOpacity.value : 0,
-      };
-    });
-
-    return (
-      <Animated.View
-        key={index}
-        entering={ZoomIn.delay(index * 50).springify()}
-        style={[styles.box, boxStyle, animatedBoxStyle, error && errorBoxStyle, isActive && activeBoxStyle]}
-      >
-        {isFilled ? (
-          <Animated.Text style={[styles.text, textStyle]}>
-            {secure ? '•' : char}
-          </Animated.Text>
-        ) : (
-          isActive && (
-            <Animated.View
-              style={[
-                styles.cursor,
-                { backgroundColor: cursorColor },
-                cursorAnimatedStyle,
-              ]}
-            />
-          )
-        )}
-      </Animated.View>
-    );
-  };
-
   return (
     <AnimatedPressable 
       onPress={handlePress} 
@@ -170,23 +192,39 @@ export const OtpInput: React.FC<OtpInputProps> = ({
     >
       {/* Hidden Native Input */}
       <TextInput
-        ref={inputRef}
+        ref={inputRef as any}
         value={value}
         onChangeText={handleChangeText}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         maxLength={length}
         autoFocus={autoFocus}
-        keyboardType="number-pad" // Defaulting to numeric for OTP
+        keyboardType="number-pad"
         returnKeyType="done"
-        textContentType="oneTimeCode" // iOS Auto-fill magic
+        textContentType="oneTimeCode"
         style={styles.hiddenInput}
         caretHidden
       />
 
       {/* Visual Boxes */}
       <View style={styles.row}>
-        {Array.from({ length }).map((_, i) => renderBox(i))}
+        {Array.from({ length }).map((_, i) => (
+          <OtpBox
+            key={i}
+            index={i}
+            char={value[i]}
+            isFocused={isFocused}
+            isCurrent={i === value.length}
+            error={error}
+            secure={secure}
+            cursorColor={cursorColor}
+            boxStyle={boxStyle}
+            activeBoxStyle={activeBoxStyle}
+            errorBoxStyle={errorBoxStyle}
+            textStyle={textStyle}
+            cursorOpacity={cursorOpacity}
+          />
+        ))}
       </View>
     </AnimatedPressable>
   );
