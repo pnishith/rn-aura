@@ -1,11 +1,17 @@
 import React from 'react';
-import { StyleSheet, View, Image, ImageSourcePropType, Dimensions } from 'react-native';
+import {
+  Dimensions,
+  StyleSheet,
+  View,
+  type ImageSourcePropType,
+} from 'react-native';
+
 import Animated, {
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
   interpolate,
-  Extrapolate,
+  Extrapolation,
 } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
@@ -37,7 +43,7 @@ export const ParallaxHeader: React.FC<ParallaxHeaderProps> = ({
             scrollY.value,
             [-headerHeight, 0, headerHeight],
             [-headerHeight / 2, 0, headerHeight * 0.75],
-            Extrapolate.CLAMP
+            Extrapolation.CLAMP
           ),
         },
         {
@@ -45,7 +51,7 @@ export const ParallaxHeader: React.FC<ParallaxHeaderProps> = ({
             scrollY.value,
             [-headerHeight, 0, headerHeight],
             [2, 1, 1],
-            Extrapolate.CLAMP
+            Extrapolation.CLAMP
           ),
         },
       ],
