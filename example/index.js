@@ -1,8 +1,8 @@
 import { registerRootComponent } from 'expo';
 
-import App from './src/App';
+// import App from './src/App';
+// To test only the OtpInput without navigation, uncomment the line below 
+// and comment out the registerRootComponent(App) line.
+import App from './src/OtpTestScreen';
 
-// registerRootComponent calls AppRegistry.registerComponent('main', () => App);
-// It also ensures that whether you load the app in Expo Go or in a native build,
-// the environment is set up appropriately
 registerRootComponent(App);
