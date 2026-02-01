@@ -1,5 +1,12 @@
-import React, { useState } from 'react';
-import { TextInput, StyleSheet, View, Text, TextInputProps } from 'react-native';
+import React from 'react';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  type TextInputProps,
+} from 'react-native';
+
 import Animated, { useAnimatedStyle, withTiming, interpolateColor, useSharedValue } from 'react-native-reanimated';
 
 interface PhoneInputProps extends TextInputProps {
@@ -13,6 +20,7 @@ interface PhoneInputProps extends TextInputProps {
 export const PhoneInput: React.FC<PhoneInputProps> = ({
   value,
   onChangeValue,
+  onChangeText,
   countryCode = '+1',
   activeColor = '#007AFF',
   inactiveColor = '#E5E5EA',
@@ -20,6 +28,11 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
   ...props
 }) => {
   const focusProgress = useSharedValue(0);
+
+  const handleChange = (text: string) => {
+      if (onChangeValue) onChangeValue(text);
+      if (onChangeText) onChangeText(text);
+  };
 
   const onFocus = () => {
     focusProgress.value = withTiming(1);
@@ -53,7 +66,7 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
       <TextInput
         {...props}
         value={value}
-        onChangeText={onChangeValue}
+        onChangeText={handleChange}
         keyboardType="phone-pad"
         onFocus={onFocus}
         onBlur={onBlur}
