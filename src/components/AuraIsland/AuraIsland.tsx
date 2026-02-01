@@ -63,8 +63,10 @@ export const AuraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const showAura = useCallback((mode: AuraMode, newContent?: ReactNode, _newIcon?: ReactNode) => {
     setActive(true);
     setContent(newContent);
-    // _newIcon is reserved for future implementation of icon mode
-    translateY.value = withSpring(insets.top + (Platform.OS === 'android' ? 10 : 2), { 
+    
+    const safeTop = insets.top || 0;
+    
+    translateY.value = withSpring(safeTop + (Platform.OS === 'android' ? 10 : 2), { 
         damping: 30, 
         stiffness: 200, 
         mass: 1 
@@ -113,18 +115,20 @@ export const AuraProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
   });
 
-  const pan = Gesture.Pan()
+    const pan = Gesture.Pan()
     .onUpdate((e) => {
         // Allow dragging up to dismiss
         if (e.translationY < 0) {
-            translateY.value = withSpring(insets.top + e.translationY, { damping: 20, stiffness: 400 });
+            const safeTop = insets.top || 0;
+            translateY.value = withSpring(safeTop + e.translationY, { damping: 20, stiffness: 400 });
         }
     })
     .onEnd((e) => {
+        const safeTop = insets.top || 0;
         if (e.translationY < -20) {
             runOnJS(hideAura)();
         } else {
-            translateY.value = withSpring(insets.top + (Platform.OS === 'android' ? 10 : 2));
+            translateY.value = withSpring(safeTop + (Platform.OS === 'android' ? 10 : 2));
         }
     });
 
