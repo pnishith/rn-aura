@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, Image, Text, StyleSheet, ImageSourcePropType } from 'react-native';
+import {
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  type ImageSourcePropType,
+} from 'react-native';
 
 export interface AvatarStackProps {
   avatars: (string | ImageSourcePropType)[];
