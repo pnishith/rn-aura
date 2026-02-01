@@ -1,74 +1,128 @@
-import { StyleSheet, View, Text, SafeAreaView, Alert, Button } from 'react-native';
-import { OtpInput, SwipeButton, AuraProvider, useAura } from 'rn-aura';
+import { StyleSheet, View, Text, SafeAreaView, ScrollView, Alert, Button, Image } from 'react-native';
+import { 
+  OtpInput, 
+  SwipeButton, 
+  AuraProvider, 
+  useAura,
+  CurrencyInput,
+  CreditCardInput,
+  PhoneInput,
+  ZoomableView,
+  ImageComparer,
+  Marquee,
+  FloatMenu,
+  RatingSwipe,
+  Skeleton,
+  Confetti,
+  HapticTab,
+  ProgressCircle,
+  StoryViewer
+} from 'rn-aura';
 import { useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+function Section({ title, children }: { title: string, children: React.ReactNode }) {
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {children}
+    </View>
+  );
+}
+
 function HomeScreen() {
   const [otp, setOtp] = useState('');
-  const [error, setError] = useState(false);
-  const { showAura, hideAura } = useAura();
+  const [card, setCard] = useState('');
+  const [currency, setCurrency] = useState('');
+  const { showAura } = useAura();
+  const [showConfetti, setShowConfetti] = useState(false);
 
   return (
-    <SafeAreaView style={styles.container}>
-        <View style={styles.content}>
-          <Text style={styles.title}>Enter Code</Text>
-          <Text style={styles.subtitle}>
-            We sent a verification code to your phone.
-          </Text>
-          
-          <View style={styles.inputContainer}>
-            <OtpInput 
-              length={4} 
-              value={otp} 
-              onChange={(val) => {
-                setOtp(val);
-                if (error) setError(false);
-              }}
-              error={error}
-              autoFocus
-            />
-          </View>
+    <ScrollView contentContainerStyle={styles.content}>
+      {showConfetti && <Confetti duration={3000} />}
+      
+      <Text style={styles.header}>Aura Kitchen Sink</Text>
 
-          <View style={styles.spacer} />
+      <Section title="1. Smart Inputs">
+        <OtpInput 
+          value={otp} 
+          onChange={setOtp} 
+          style={{marginBottom: 10}}
+        />
+        <CurrencyInput 
+          value={currency}
+          onChangeText={setCurrency}
+          placeholder="$0.00"
+          style={{marginBottom: 10}}
+        />
+        <CreditCardInput 
+          value={card}
+          onChangeText={setCard}
+          placeholder="0000 0000 0000 0000"
+        />
+      </Section>
 
-          <SwipeButton 
-            width="90%"
-            onComplete={() => {
-                // Show Dynamic Island on success!
-                showAura('expanded', (
-                    <View style={{ alignItems: 'center' }}>
-                        <Ionicons name="checkmark-circle" size={48} color="#4F46E5" />
-                        <Text style={{ color: 'white', fontWeight: 'bold', marginTop: 8 }}>Success!</Text>
-                        <Text style={{ color: '#ccc', fontSize: 12 }}>Transaction verified.</Text>
-                    </View>
-                ));
-                
-                // Hide after 3s
-                setTimeout(hideAura, 3000);
-            }}
-            title="Slide to Confirm"
-            activeColor="#4F46E5" // Indigo-600
-            thumbIcon={<Ionicons name="arrow-forward" size={24} color="#4F46E5" />}
-          />
-
-          <View style={styles.spacer} />
-
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-             <Button title="Min Aura" onPress={() => showAura('minimal')} />
-             <Button title="Compact Aura" onPress={() => showAura('compact', <Text style={{color:'white'}}>Loading...</Text>)} />
-             <Button title="Expand Aura" onPress={() => showAura('expanded', <Text style={{color:'white'}}>Music Playing</Text>)} />
-          </View>
-
-          <Text 
-            style={styles.link}
-            onPress={() => setError(true)}
-          >
-            Simulate Error (Tap Me)
-          </Text>
+      <Section title="2. Dynamic Island">
+        <View style={{flexDirection: 'row', gap: 10}}>
+          <HapticTab onPress={() => showAura('compact', <Text style={{color:'white'}}>Uploading...</Text>)}>
+            <Text>Compact</Text>
+          </HapticTab>
+          <HapticTab onPress={() => showAura('expanded', <Text style={{color:'white'}}>Success!</Text>)}>
+            <Text>Expanded</Text>
+          </HapticTab>
         </View>
-    </SafeAreaView>
+      </Section>
+
+      <Section title="3. Interaction">
+        <SwipeButton 
+          onComplete={() => {
+            setShowConfetti(true);
+            setTimeout(() => setShowConfetti(false), 3000);
+          }}
+          title="Slide for Confetti"
+          width="100%"
+        />
+        <View style={{height: 10}} />
+        <RatingSwipe onRating={(r) => console.log(r)} />
+      </Section>
+
+      <Section title="4. Visuals">
+        <View style={{flexDirection: 'row', gap: 20, alignItems: 'center'}}>
+           <ProgressCircle progress={0.75} size={60} color="#4F46E5" />
+           <Skeleton width={150} height={20} style={{borderRadius: 4}} />
+        </View>
+        <View style={{height: 10}} />
+        <Marquee text="React Native Aura is fast, fluid, and premium. " speed={50} />
+      </Section>
+
+      <Section title="5. Media (Pinch to Zoom)">
+        <ZoomableView>
+            <Image 
+                source={{uri: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=800'}} 
+                style={{width: 300, height: 200, borderRadius: 12}} 
+            />
+        </ZoomableView>
+      </Section>
+
+      <Section title="6. Comparison">
+         <ImageComparer 
+            leftImage="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800"
+            rightImage="https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?w=800"
+            height={200}
+         />
+      </Section>
+
+      <View style={{height: 100}} /> 
+      
+      {/* Floating Menu always on top */}
+      <FloatMenu actions={[
+        { icon: <Ionicons name="home" size={20} color="white" />, onPress: () => console.log('Home') },
+        { icon: <Ionicons name="settings" size={20} color="white" />, onPress: () => console.log('Settings') },
+      ]} />
+      
+    </ScrollView>
   );
 }
 
@@ -77,7 +131,9 @@ export default function App() {
     <SafeAreaProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
             <AuraProvider>
-                <HomeScreen />
+                <SafeAreaView style={styles.container}>
+                  <HomeScreen />
+                </SafeAreaView>
             </AuraProvider>
         </GestureHandlerRootView>
     </SafeAreaProvider>
@@ -87,39 +143,32 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB', // Gray-50
+    backgroundColor: '#F9FAFB',
   },
   content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
+    padding: 20,
+    paddingBottom: 100,
   },
-  spacer: {
-    height: 48,
-  },
-  title: {
-    fontSize: 24,
+  header: {
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#111827', // Gray-900
-    marginBottom: 8,
+    marginBottom: 20,
+    color: '#111827',
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#6B7280', // Gray-500
+  section: {
     marginBottom: 32,
-    textAlign: 'center',
+    backgroundColor: 'white',
+    padding: 16,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
-  inputContainer: {
-    marginBottom: 32,
-  },
-  link: {
-    color: '#3B82F6', // Blue-500
+  sectionTitle: {
+    fontSize: 18,
     fontWeight: '600',
-    marginBottom: 24,
+    marginBottom: 16,
+    color: '#374151',
   },
-  debug: {
-    fontFamily: 'monospace',
-    color: '#9CA3AF',
-  }
 });
