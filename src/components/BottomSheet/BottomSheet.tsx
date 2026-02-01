@@ -1,12 +1,11 @@
 import React, { useCallback, useImperativeHandle, forwardRef } from 'react';
-import { StyleSheet, View, Dimensions, ViewStyle } from 'react-native';
+import { Dimensions, StyleSheet, View, type ViewStyle } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
   withTiming,
-  runOnJS,
 } from 'react-native-reanimated';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -59,7 +58,8 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
            scrollTo(0);
         } else {
              // Snap to first point for simplicity in this demo
-             scrollTo(-SCREEN_HEIGHT * snapPoints[0]);
+             const firstSnap = snapPoints?.[0] ?? 0.25;
+             scrollTo(-SCREEN_HEIGHT * firstSnap);
         }
       });
 
@@ -73,7 +73,9 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
     React.useEffect(() => {
         // scrollTo(-SCREEN_HEIGHT * snapPoints[initialSnapIndex]); 
         // Delaying init or manual trigger might be better, but let's leave it 0 (hidden/peeking) for now
-        translateY.value = withTiming(-SCREEN_HEIGHT * snapPoints[initialSnapIndex]);
+        const snapIndex = Math.min(initialSnapIndex, (snapPoints?.length ?? 1) - 1);
+        const snapPoint = snapPoints?.[snapIndex] ?? 0.25;
+        translateY.value = withTiming(-SCREEN_HEIGHT * snapPoint);
     }, []);
 
     return (
