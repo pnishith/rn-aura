@@ -76,6 +76,7 @@
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-builder-bob": "^0.40.17",
+    "react-native-gesture-handler": "^2.30.0",
     "react-native-reanimated": "^4.2.1",
     "release-it": "^19.0.4",
     "typescript": "^5.9.2"
@@ -149,5 +150,8 @@
       "release-it"
     ],
     "version": "0.57.0"
+  },
+  "dependencies": {
+    "react-native-vector-icons": "^10.3.0"
   }
 }

@@ -14,38 +14,44 @@
 ## 📦 Installation
 
 ```sh
-npm install rn-aura react-native-reanimated
+npm install rn-aura react-native-reanimated react-native-gesture-handler
 # or
-yarn add rn-aura react-native-reanimated
+yarn add rn-aura react-native-reanimated react-native-gesture-handler
 ```
 
 ## 🎨 Components
 
-### Smart Inputs
-- **`OtpInput`**: Auto-focus, copy-paste ready, secure mode, and error shake.
+### 1. OtpInput
+A polished, auto-focusing One-Time Password input.
+- **Features:** Hidden native input (perfect copy/paste), shake on error, secure mode, animated focus.
+- **Usage:**
+```tsx
+<OtpInput 
+  length={4} 
+  value={code} 
+  onChange={setCode} 
+  error={hasError} 
+/>
+```
+
+### 2. SwipeButton
+A slide-to-confirm button with physics-based snap animations.
+- **Features:** Haptic feedback ready, customizable thumb (icon/text/image), smooth gradient fill.
+- **Usage:**
+```tsx
+<SwipeButton 
+  title="Slide to Pay"
+  onComplete={() => alert('Paid!')}
+  thumbIcon={<Icon name="arrow-right" size={24} />}
+  activeColor="#10B981"
+/>
+```
 
 ### (Coming Soon)
 - `StoryViewer`
 - `ZoomableView`
-- `DynamicIsland`
-- `SwipeButton`
-
-## 🚀 Usage
-
-```tsx
-import { OtpInput } from 'rn-aura';
-
-function App() {
-  return (
-    <OtpInput 
-      length={4}
-      value={code}
-      onChange={setCode}
-      error={hasError}
-    />
-  );
-}
-```
+- `DynamicIsland` (AuraIsland)
+- `ParallaxHeader`
 
 ## 📄 License
 
