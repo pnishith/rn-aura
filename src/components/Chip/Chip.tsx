@@ -17,24 +17,26 @@ import Animated, {
 
 export interface ChipProps {
   label: string;
+  variant?: 'filled' | 'outlined';
+  color?: string;
   selected?: boolean;
   closable?: boolean;
   onPress?: () => void;
   onClose?: () => void;
   style?: ViewStyle;
   labelStyle?: TextStyle;
-  activeColor?: string;
 }
 
 export const Chip: React.FC<ChipProps> = ({
   label,
+  variant = 'filled',
+  color = '#4F46E5', // Default Indigo-600
   selected = false,
   closable = false,
   onPress,
   onClose,
   style,
   labelStyle,
-  activeColor = '#E0E0E0',
 }) => {
   const scale = useSharedValue(1);
 
@@ -46,11 +48,18 @@ export const Chip: React.FC<ChipProps> = ({
     scale.value = withSpring(1);
   };
 
+  const isFilled = variant === 'filled';
+  
+  // Logic for color states
+  const baseBg = isFilled ? (selected ? color : '#F3F4F6') : 'transparent';
+  const baseBorder = selected ? color : (isFilled ? '#F3F4F6' : color);
+  const baseTextColor = isFilled ? (selected ? '#FFFFFF' : '#374151') : color;
+
   const rStyle = useAnimatedStyle(() => {
     return {
       transform: [{ scale: scale.value }],
-      backgroundColor: withTiming(selected ? activeColor : '#F5F5F5'),
-      borderColor: withTiming(selected ? activeColor : '#E0E0E0'),
+      backgroundColor: withTiming(baseBg),
+      borderColor: withTiming(baseBorder),
     };
   });
 
@@ -66,13 +75,13 @@ export const Chip: React.FC<ChipProps> = ({
           <Text style={[
             styles.label, 
             labelStyle,
-            { color: selected ? '#000' : '#666', fontWeight: selected ? '600' : '400' }
+            { color: baseTextColor, fontWeight: selected ? '600' : '400' }
           ]}>
             {label}
           </Text>
           {closable && (
             <Pressable onPress={onClose} style={styles.closeButton} hitSlop={8}>
-              <Text style={styles.closeText}>×</Text>
+              <Text style={[styles.closeText, { color: baseTextColor }]}>×</Text>
             </Pressable>
           )}
         </Animated.View>
@@ -88,29 +97,27 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 20,
-    borderWidth: 1,
+    borderWidth: 1.5,
     minHeight: 32,
   },
   label: {
     fontSize: 14,
-    marginRight: 4,
   },
   closeButton: {
-    marginLeft: 4,
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    marginLeft: 6,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: 'rgba(0,0,0,0.05)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   closeText: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: '#000',
+    fontSize: 14,
+    fontWeight: '600',
     marginTop: -2,
   },
 });
