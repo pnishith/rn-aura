@@ -14,14 +14,45 @@
 ## 📦 Installation
 
 ```sh
-npm install rn-aura react-native-reanimated react-native-gesture-handler
+npm install rn-aura react-native-reanimated react-native-gesture-handler react-native-safe-area-context
 # or
-yarn add rn-aura react-native-reanimated react-native-gesture-handler
+yarn add rn-aura react-native-reanimated react-native-gesture-handler react-native-safe-area-context
+```
+
+> **Note:** This library uses `peerDependencies`. You must install the versions of Reanimated/Gesture Handler that match your React Native or Expo SDK version.
+
+## 🚀 Setup
+
+Wrap your app in `AuraProvider` to enable the Dynamic Island and global overlays.
+
+```tsx
+import { AuraProvider } from 'rn-aura';
+
+export default function App() {
+  return (
+    <AuraProvider>
+      <YourApp />
+    </AuraProvider>
+  );
+}
 ```
 
 ## 🎨 Components
 
-### 1. OtpInput
+### 1. AuraIsland (Dynamic Island)
+An intelligent, morphing status capsule that floats above your app.
+- **Usage:**
+```tsx
+const { showAura, hideAura } = useAura();
+
+// Trigger an expanded success card
+showAura('expanded', <SuccessView />);
+
+// Trigger a minimal loading pill
+showAura('compact', <Text>Loading...</Text>);
+```
+
+### 2. OtpInput
 A polished, auto-focusing One-Time Password input.
 - **Features:** Hidden native input (perfect copy/paste), shake on error, secure mode, animated focus.
 - **Usage:**
@@ -34,7 +65,7 @@ A polished, auto-focusing One-Time Password input.
 />
 ```
 
-### 2. SwipeButton
+### 3. SwipeButton
 A slide-to-confirm button with physics-based snap animations.
 - **Features:** Haptic feedback ready, customizable thumb (icon/text/image), smooth gradient fill.
 - **Usage:**
@@ -50,7 +81,6 @@ A slide-to-confirm button with physics-based snap animations.
 ### (Coming Soon)
 - `StoryViewer`
 - `ZoomableView`
-- `DynamicIsland` (AuraIsland)
 - `ParallaxHeader`
 
 ## 📄 License
