@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, type ViewStyle } from 'react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -26,14 +26,12 @@ export const BouncingCheckbox: React.FC<BouncingCheckboxProps> = ({
   const progress = useSharedValue(checked ? 1 : 0);
 
   useEffect(() => {
-    // Smooth transition for color and checkmark scaling
     progress.value = withSpring(checked ? 1 : 0, { 
         damping: 20, 
         stiffness: 200,
         mass: 0.5 
     });
     
-    // Tuck-and-pop impact animation
     if (checked) {
        bounce.value = 0.8;
        bounce.value = withSpring(1, { 
@@ -42,7 +40,7 @@ export const BouncingCheckbox: React.FC<BouncingCheckboxProps> = ({
            mass: 0.8
        });
     }
-  }, [checked]);
+  }, [checked, progress, bounce]);
 
   const rContainerStyle = useAnimatedStyle(() => {
     const backgroundColor = interpolateColor(
@@ -66,10 +64,9 @@ export const BouncingCheckbox: React.FC<BouncingCheckboxProps> = ({
   const rCheckStyle = useAnimatedStyle(() => {
     return {
       opacity: progress.value,
+      // Removed scaling of the checkmark itself to prevent pixelation/blur
       transform: [
-        { scale: progress.value },
         { rotate: '-45deg' },
-        { translateY: (1 - progress.value) * -2 }
       ],
     };
   });
@@ -114,7 +111,7 @@ const styles = StyleSheet.create({
   },
   checkIcon: {
       borderColor: '#FFF',
-      marginTop: -2, // Optical centering adjustment
+      marginTop: -2, 
       marginLeft: 1,
   }
 });
