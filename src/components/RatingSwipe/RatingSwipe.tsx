@@ -24,12 +24,12 @@ interface RatingSwipeProps {
  * the background and the foreground clipping layer.
  */
 const StarIcon = ({ fill = false, color = '#D1D5DB', size = 24 }: { fill?: boolean, color?: string, size?: number }) => (
-    <Icon 
-      name={fill ? "star" : "star-outline"} 
-      size={size} 
-      color={color}
-      style={{ textAlign: 'center' }}
-    />
+  <Icon
+    name={fill ? "star" : "star-outline"}
+    size={size}
+    color={color}
+    style={{ textAlign: 'center' }}
+  />
 );
 
 export const RatingSwipe: React.FC<RatingSwipeProps> = ({
@@ -43,11 +43,11 @@ export const RatingSwipe: React.FC<RatingSwipeProps> = ({
 }) => {
   const containerWidth = 280;
   const slotWidth = containerWidth / maxRating;
-  
+
   // Shared values for high-performance gesture handling without bridging overhead
   const ratingSv = useSharedValue(initialRating);
   const width = useSharedValue((initialRating / maxRating) * containerWidth);
-  
+
   // Local state for UI feedback and numerical display
   const [jsRating, setJsRating] = useState(initialRating);
 
@@ -66,13 +66,13 @@ export const RatingSwipe: React.FC<RatingSwipeProps> = ({
     'worklet';
     ratingSv.value = newRating;
     const targetWidth = (newRating / maxRating) * containerWidth;
-    
+
     if (animate) {
-        width.value = withSpring(targetWidth, { damping: 50, stiffness: 400 });
+      width.value = withSpring(targetWidth, { damping: 50, stiffness: 400 });
     } else {
-        width.value = targetWidth;
+      width.value = targetWidth;
     }
-    
+
     // Bridge back to JS for state updates and callbacks
     runOnJS(setJsRating)(newRating);
     runOnJS(onRatingChange)(newRating);
@@ -84,7 +84,7 @@ export const RatingSwipe: React.FC<RatingSwipeProps> = ({
       const x = Math.max(0, Math.min(e.x, containerWidth));
       const rawRating = (x / containerWidth) * maxRating;
       // Clicking always rounds UP to the next full star for a more predictable UX
-      const fullRating = Math.ceil(rawRating); 
+      const fullRating = Math.ceil(rawRating);
       applyRating(fullRating, true);
     });
 
@@ -92,25 +92,25 @@ export const RatingSwipe: React.FC<RatingSwipeProps> = ({
   const pan = Gesture.Pan()
     .minDistance(0) // Handle immediate touch response on start
     .onStart((e) => {
-        const x = Math.max(0, Math.min(e.x, containerWidth));
-        const rawRating = (x / containerWidth) * maxRating;
-        const roundedRating = Math.round(rawRating * 2) / 2;
-        applyRating(roundedRating, true);
+      const x = Math.max(0, Math.min(e.x, containerWidth));
+      const rawRating = (x / containerWidth) * maxRating;
+      const roundedRating = Math.round(rawRating * 2) / 2;
+      applyRating(roundedRating, true);
     })
     .onUpdate((e) => {
       const x = Math.max(0, Math.min(e.x, containerWidth));
       const rawRating = (x / containerWidth) * maxRating;
       const roundedRating = Math.round(rawRating * 2) / 2;
-      
+
       // Update visual fill without spring during drag for zero-latency response
       if (ratingSv.value !== roundedRating) {
-         applyRating(roundedRating, false); 
+        applyRating(roundedRating, false);
       }
     })
     .onEnd(() => {
-        // Smoothly snap to the final rating position on release
-        const targetWidth = (ratingSv.value / maxRating) * containerWidth;
-        width.value = withSpring(targetWidth, { damping: 50, stiffness: 400 });
+      // Smoothly snap to the final rating position on release
+      const targetWidth = (ratingSv.value / maxRating) * containerWidth;
+      width.value = withSpring(targetWidth, { damping: 50, stiffness: 400 });
     });
 
   // Composed style for the foreground fill clipping mask
@@ -124,61 +124,61 @@ export const RatingSwipe: React.FC<RatingSwipeProps> = ({
   const composed = Gesture.Exclusive(pan, tap);
 
   // Dynamic vertical padding based on star size to ensure balanced layout
-  const containerHeight = size + 20; 
+  const containerHeight = size + 20;
 
   return (
     <View style={styles.outerContainer}>
-        <GestureDetector gesture={composed}>
-            <View style={[styles.container, { width: containerWidth, height: containerHeight }]}>
-                
-                {/* Dynamic Slider Track (Background Progress Bar) */}
-                {showSliderBackground && (
-                    <View style={[styles.sliderTrack, { 
-                        width: containerWidth, 
-                        height: size * 1.4, // Slightly smaller than stars for a layered look
-                        borderRadius: (size * 0.8) / 2,
-                    }]}>
-                        <Animated.View 
-                            style={[
-                                styles.sliderFill, 
-                                animatedFillStyle,
-                                { backgroundColor: activeColor, opacity: 0.1 }
-                            ]} 
-                        />
-                    </View>
-                )}
+      <GestureDetector gesture={composed}>
+        <View style={[styles.container, { width: containerWidth, height: containerHeight }]}>
 
-                {/* Background Layer: Render the empty star outlines */}
-                <View style={styles.starRow}>
-                {Array.from({ length: maxRating }).map((_, i) => (
-                    <View key={i} style={[styles.starSlot, { width: slotWidth }]}>
-                        <StarIcon size={size} color={inactiveColor} />
-                    </View>
-                ))}
-                </View>
-
-                {/* Foreground Layer: Render the active filled stars with a clipping mask */}
-                <Animated.View style={[styles.fillOverlay, animatedFillStyle]}>
-                    <View style={[styles.starRow, { width: containerWidth }]} pointerEvents="none">
-                        {Array.from({ length: maxRating }).map((_, i) => (
-                            <View key={i} style={[styles.starSlot, { width: slotWidth }]}>
-                                <StarIcon size={size} fill color={activeColor} />
-                            </View>
-                        ))}
-                    </View>
-                </Animated.View>
+          {/* Dynamic Slider Track (Background Progress Bar) */}
+          {showSliderBackground && (
+            <View style={[styles.sliderTrack, {
+              width: containerWidth,
+              height: size * 1.4, // Slightly smaller than stars for a layered look
+              borderRadius: (size * 0.8) / 2,
+            }]}>
+              <Animated.View
+                style={[
+                  styles.sliderFill,
+                  animatedFillStyle,
+                  { backgroundColor: activeColor, opacity: 0.1 }
+                ]}
+              />
             </View>
-        </GestureDetector>
-        
-        {/* Rating Label Display */}
-        <Text style={styles.ratingText}>{jsRating.toFixed(1)} / {maxRating}</Text>
+          )}
+
+          {/* Background Layer: Render the empty star outlines */}
+          <View style={styles.starRow}>
+            {Array.from({ length: maxRating }).map((_, i) => (
+              <View key={i} style={[styles.starSlot, { width: slotWidth }]}>
+                <StarIcon size={size} color={inactiveColor} />
+              </View>
+            ))}
+          </View>
+
+          {/* Foreground Layer: Render the active filled stars with a clipping mask */}
+          <Animated.View style={[styles.fillOverlay, animatedFillStyle]}>
+            <View style={[styles.starRow, { width: containerWidth }]} pointerEvents="none">
+              {Array.from({ length: maxRating }).map((_, i) => (
+                <View key={i} style={[styles.starSlot, { width: slotWidth }]}>
+                  <StarIcon size={size} fill color={activeColor} />
+                </View>
+              ))}
+            </View>
+          </Animated.View>
+        </View>
+      </GestureDetector>
+
+      {/* Rating Label Display */}
+      <Text style={styles.ratingText}>{jsRating.toFixed(1)} / {maxRating}</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   outerContainer: {
-      alignItems: 'center',
+    alignItems: 'center',
   },
   container: {
     justifyContent: 'center',
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     height: '100%',
-    position: 'absolute', 
+    position: 'absolute',
     top: 0,
     left: 0,
   },
