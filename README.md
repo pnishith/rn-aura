@@ -1,29 +1,42 @@
 # React Native Aura 🌌
 
-> The Developer Super-Kit. 50+ Premium UI & Functional Components for React Native.
+[![npm version](https://img.shields.io/npm/v/rn-aura.svg?style=flat-square)](https://www.npmjs.com/package/rn-aura)
+[![npm downloads](https://img.shields.io/npm/dm/rn-aura.svg?style=flat-square)](https://www.npmjs.com/package/rn-aura)
+[![license](https://img.shields.io/npm/l/rn-aura.svg?style=flat-square)](https://github.com/pnishith/rn-aura/blob/main/LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://github.com/pnishith/rn-aura/pulls)
 
-**Aura** is a next-generation library designed to bridge the gap between "Basic" and "Premium." It provides the complex, high-interaction components that usually require 3-4 separate libraries to achieve.
+> **The Developer Super-Kit.** 50+ Premium UI & Functional Components for high-performance React Native apps.
+
+**Aura** is a professional-grade component library designed to bridge the gap between "Basic" and "Premium." It provides the complex, high-interaction components that usually require multiple specialized libraries to achieve. Built with performance and aesthetics at its core.
+
+---
 
 ## ✨ Why Aura?
 
-- **🦄 Unique:** Components you won't find in standard kits (Story Viewer, Dynamic Island, Parallax).
-- **🚀 Optimized:** Built on `react-native-reanimated` worklets for 60/120 FPS performance.
-- **📱 Native Feel:** Physics-based animations that feel right at home on iOS and Android.
-- **🧩 Gap-Filling:** Solves the "Headache" problems (Auto-focus OTP, Smart Inputs, Sensors).
+- **🦄 Unique Components:** Access high-end interactions like the `AuraIsland` (Dynamic Island), `StoryViewer`, and `ParallaxHeader`.
+- **🚀 Performance First:** Powered by `react-native-reanimated` worklets for 60/120 FPS fluid animations.
+- **📱 Native Precision:** Physics-based springs that feel identical to native iOS and Android system behaviors.
+- **🧩 Solve "Headache" UX:** Drop-in solutions for complex inputs like auto-focusing OTPs, currency masking, and rating systems.
+- **⚛️ New Architecture Ready:** Fully compatible with Fabric, Bridgeless mode, and React Native 0.83+.
+
+---
 
 ## 📦 Installation
 
 ```sh
-npm install rn-aura react-native-reanimated react-native-gesture-handler react-native-safe-area-context
-# or
-yarn add rn-aura react-native-reanimated react-native-gesture-handler react-native-safe-area-context
+yarn add rn-aura react-native-reanimated react-native-gesture-handler react-native-safe-area-context react-native-vector-icons
 ```
 
-> **Note:** This library uses `peerDependencies`. You must install the versions of Reanimated/Gesture Handler that match your React Native or Expo SDK version.
+> **Requirements:**
+> - React Native 0.71+ (Recommended 0.83+ for Fabric)
+> - Reanimated 3.0+
+> - Gesture Handler 2.0+
 
-## 🚀 Setup
+---
 
-Wrap your app in `AuraProvider` to enable the Dynamic Island and global overlays.
+## 🚀 Quick Setup
+
+Wrap your root component in the `AuraProvider` to enable global features like the Dynamic Island.
 
 ```tsx
 import { AuraProvider } from 'rn-aura';
@@ -31,58 +44,80 @@ import { AuraProvider } from 'rn-aura';
 export default function App() {
   return (
     <AuraProvider>
-      <YourApp />
+      <MainNavigator />
     </AuraProvider>
   );
 }
 ```
 
-## 🎨 Components
+---
 
-### 1. AuraIsland (Dynamic Island)
-An intelligent, morphing status capsule that floats above your app.
-- **Usage:**
+## 🎨 Featured Components
+
+### 🟢 Smart Inputs
+| Component | Description |
+| :--- | :--- |
+| **`OtpInput`** | Auto-focusing, clipboard-ready, shake-on-error OTP boxes. |
+| **`FloatingInput`** | Premium floating label input with "border-cut" masking. |
+| **`RatingSwipe`** | High-precision star rating with 0.5 increment snapping. |
+| **`PhoneInput`** | Masked phone input with international support. |
+
+### 🔵 Modern Interaction
+| Component | Description |
+| :--- | :--- |
+| **`AuraIsland`** | An intelligent, morphing status capsule (Dynamic Island). |
+| **`SwipeButton`** | A slide-to-confirm action button with impact physics. |
+| **`FluidSwitch`** | Liquid-motion toggle switch with spring-back physics. |
+| **`BouncingCheckbox`** | Interactive checkbox with a satisfying impact bounce. |
+
+### 🟣 Visuals & Layout
+| Component | Description |
+| :--- | :--- |
+| **`Marquee`** | High-performance scrolling text tickers. |
+| **`Skeleton`** | Shimmering placeholder components for loading states. |
+| **`Box / Row / Column`** | Optimized flexbox primitives with utility-first spacing props. |
+| **`Confetti`** | Full-screen celebratory particles. |
+
+---
+
+## 📖 Usage Examples
+
+### OTP Input (One-Time Password)
 ```tsx
-const { showAura, hideAura } = useAura();
+import { OtpInput } from 'rn-aura';
 
-// Trigger an expanded success card
-showAura('expanded', <SuccessView />);
+const [code, setCode] = useState('');
 
-// Trigger a minimal loading pill
-showAura('compact', <Text>Loading...</Text>);
-```
-
-### 2. OtpInput
-A polished, auto-focusing One-Time Password input.
-- **Features:** Hidden native input (perfect copy/paste), shake on error, secure mode, animated focus.
-- **Usage:**
-```tsx
 <OtpInput 
   length={4} 
   value={code} 
   onChange={setCode} 
   error={hasError} 
+  autoFocus
 />
 ```
 
-### 3. SwipeButton
-A slide-to-confirm button with physics-based snap animations.
-- **Features:** Haptic feedback ready, customizable thumb (icon/text/image), smooth gradient fill.
-- **Usage:**
+### Rating Swipe (Stars)
 ```tsx
-<SwipeButton 
-  title="Slide to Pay"
-  onComplete={() => alert('Paid!')}
-  thumbIcon={<Icon name="arrow-right" size={24} />}
-  activeColor="#10B981"
+import { RatingSwipe } from 'rn-aura';
+
+<RatingSwipe 
+  initialRating={4.5} 
+  onRatingChange={(r) => console.log('Rated:', r)} 
+  showSliderBackground 
 />
 ```
 
-### (Coming Soon)
-- `StoryViewer`
-- `ZoomableView`
-- `ParallaxHeader`
+---
+
+## 🗺️ Roadmap
+- [ ] `StoryViewer` - Instagram-style story progression.
+- [ ] `VideoPreview` - Autoplaying background video containers.
+- [ ] `useShake` / `useBiometric` - Ready-to-use functional hooks.
+- [ ] `ParallaxHeader` - Optimized scroll-driven image scaling.
+
+---
 
 ## 📄 License
 
-MIT © 2026 Nishith Patel
+MIT © 2026 [Nishith Patel](https://github.com/pnishith)
