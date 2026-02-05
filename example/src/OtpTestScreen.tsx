@@ -92,7 +92,7 @@ export default function OtpTestScreen() {
                     <Text size={13} weight="600">60/120 FPS Animations</Text>
                 </Row>
                 <Row gap={8}>
-                    <Icon name="logo-typescript" size={16} color="#3B82F6" />
+                    <Icon name="code-working-outline" size={16} color="#3B82F6" />
                     <Text size={13} weight="600">Strictly Typed</Text>
                 </Row>
             </Column>
