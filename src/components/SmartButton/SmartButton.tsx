@@ -45,12 +45,18 @@ export const SmartButton: React.FC<SmartButtonProps> = ({
 
   const handlePressIn = () => {
     if (disabled || loading) return;
-    scale.value = withSpring(0.96, { damping: 10, stiffness: 300 });
+    scale.value = withSpring(0.95, { 
+      damping: 50, 
+      stiffness: 600, 
+    });
   };
 
   const handlePressOut = () => {
     if (disabled || loading) return;
-    scale.value = withSpring(1, { damping: 10, stiffness: 300 });
+    scale.value = withSpring(1, { 
+      damping: 50, 
+      stiffness: 600, 
+    });
   };
 
   const rStyle = useAnimatedStyle(() => {
