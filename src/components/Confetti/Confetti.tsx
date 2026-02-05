@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -16,39 +16,60 @@ interface ParticleProps {
   startY: number;
   color: string;
   delay: number;
+  burstKey: number; // Used to force re-render for new bursts
 }
 
-const Particle: React.FC<ParticleProps> = ({ startX, startY, color, delay }) => {
+const Particle: React.FC<ParticleProps> = ({ startX, startY, color, delay, burstKey }) => {
   const translateY = useSharedValue(0);
   const translateX = useSharedValue(0);
   const opacity = useSharedValue(1);
-  const rotate = useSharedValue(0);
+  const rotateX = useSharedValue(0);
+  const rotateY = useSharedValue(0);
+  const rotateZ = useSharedValue(0);
 
+  // Reset values when a new burst starts
   useEffect(() => {
+    translateY.value = 0;
+    translateX.value = 0;
+    opacity.value = 1;
+    rotateX.value = 0;
+    rotateY.value = 0;
+    rotateZ.value = 0;
+
     translateY.value = withDelay(
       delay,
-      withTiming(SCREEN_HEIGHT, { duration: 2000 + Math.random() * 1000, easing: Easing.out(Easing.quad) })
+      withTiming(SCREEN_HEIGHT + 100, { 
+        duration: 2500 + Math.random() * 1500, 
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1) 
+      })
     );
+
     translateX.value = withDelay(
       delay,
-      withTiming((Math.random() - 0.5) * 200, { duration: 2000 })
+      withTiming((Math.random() - 0.5) * 300, { 
+        duration: 3000,
+        easing: Easing.out(Easing.quad)
+      })
     );
-    rotate.value = withDelay(
-      delay,
-      withRepeat(withTiming(360, { duration: 500 }), -1)
-    );
+
+    rotateX.value = withDelay(delay, withRepeat(withTiming(360, { duration: 800 + Math.random() * 1000 }), -1));
+    rotateY.value = withDelay(delay, withRepeat(withTiming(360, { duration: 1000 + Math.random() * 1000 }), -1));
+    rotateZ.value = withDelay(delay, withRepeat(withTiming(360, { duration: 1200 + Math.random() * 1000 }), -1));
+
     opacity.value = withDelay(
-      delay + 1500,
-      withTiming(0, { duration: 500 })
+      delay + 2000,
+      withTiming(0, { duration: 1000 })
     );
-  }, []);
+  }, [delay, burstKey, rotateX, rotateY, rotateZ, translateX, translateY, opacity]);
 
   const style = useAnimatedStyle(() => {
     return {
       transform: [
         { translateY: translateY.value },
         { translateX: translateX.value },
-        { rotate: `${rotate.value}deg` },
+        { rotateX: `${rotateX.value}deg` },
+        { rotateY: `${rotateY.value}deg` },
+        { rotateZ: `${rotateZ.value}deg` },
       ],
       opacity: opacity.value,
     };
@@ -58,7 +79,13 @@ const Particle: React.FC<ParticleProps> = ({ startX, startY, color, delay }) => 
     <Animated.View
       style={[
         styles.particle,
-        { left: startX, top: startY, backgroundColor: color },
+        { 
+          left: startX, 
+          top: startY, 
+          backgroundColor: color,
+          width: 8,
+          height: 10,
+        },
         style,
       ]}
     />
@@ -68,34 +95,60 @@ const Particle: React.FC<ParticleProps> = ({ startX, startY, color, delay }) => 
 interface ConfettiProps {
   active?: boolean;
   count?: number;
+  onAnimationEnd?: () => void;
 }
 
-const COLORS = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
+const COLORS = [
+  '#FF3B30',
+  '#34C759',
+  '#007AFF',
+  '#FFCC00',
+  '#AF52DE',
+  '#FF9500',
+  '#5AC8FA',
+];
 
-export const Confetti: React.FC<ConfettiProps> = ({ active = false, count = 50 }) => {
-  const [particles, setParticles] = useState<any[]>([]);
+export const Confetti: React.FC<ConfettiProps> = ({ 
+  active = false, 
+  count = 60,
+  onAnimationEnd 
+}) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
 
   useEffect(() => {
     if (active) {
-      const newParticles = Array.from({ length: count }).map((_, i) => ({
-        id: i,
-        startX: Math.random() * SCREEN_WIDTH,
-        startY: -20,
-        color: COLORS[Math.floor(Math.random() * COLORS.length)],
-        delay: Math.random() * 500,
-      }));
-      setParticles(newParticles);
-    } else {
-        setParticles([]);
+      setIsVisible(true);
+      setBurstKey(prev => prev + 1);
+      
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+        if (onAnimationEnd) onAnimationEnd();
+      }, 5000);
+      return () => clearTimeout(timer);
     }
-  }, [active, count]);
+    return undefined;
+  }, [active, onAnimationEnd]);
 
-  if (!active) return null;
+  const particles = useMemo(() => {
+    if (!isVisible) return [];
+    // Generate new coordinates whenever burstKey changes
+    return Array.from({ length: count }).map((_, i) => ({
+      id: i,
+      startX: Math.random() * SCREEN_WIDTH,
+      startY: -50,
+      color: COLORS[i % COLORS.length] as string,
+      delay: Math.random() * 1500,
+      burstKey: burstKey,
+    }));
+  }, [isVisible, count, burstKey]);
+
+  if (!isVisible) return null;
 
   return (
     <View style={styles.container} pointerEvents="none">
       {particles.map((p) => (
-        <Particle key={p.id} {...p} />
+        <Particle key={`${p.burstKey}-${p.id}`} {...p} />
       ))}
     </View>
   );
@@ -104,12 +157,10 @@ export const Confetti: React.FC<ConfettiProps> = ({ active = false, count = 50 }
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    zIndex: 999,
+    zIndex: 9999,
   },
   particle: {
-    width: 10,
-    height: 10,
     position: 'absolute',
-    borderRadius: 5,
+    borderRadius: 2,
   },
 });
