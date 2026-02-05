@@ -161,9 +161,42 @@ export default function OtpTestScreen() {
                     onChange={setActiveTab}
                     style={{ marginBottom: 15 }}
                 />
-                <AccordionItem title="Expand for more info">
-                    <Box p={15}>
-                        <Text color="#4B5563">This is an Accordion component working inside the test lab.</Text>
+                
+                <AccordionItem title="Project Mission Details">
+                    <Box p={5}>
+                        <Text size={14} color="#4B5563" style={{ marginBottom: 12 }}>
+                            Aura is a high-performance component library built for React Native 0.83+.
+                        </Text>
+                        <Row gap={8} wrap="wrap" style={{ marginBottom: 12 }}>
+                            <Chip label="High Performance" variant="outlined" color="#10B981" />
+                            <Chip label="Fabric Ready" variant="outlined" color="#3B82F6" />
+                            <Chip label="Modern Design" variant="outlined" color="#6366F1" />
+                        </Row>
+                        <SmartButton 
+                            title="Learn More" 
+                            variant="outlined" 
+                            style={{ minHeight: 40, paddingVertical: 8 }} 
+                            onPress={() => Alert.alert('Navigating to docs...')}
+                        />
+                    </Box>
+                </AccordionItem>
+
+                <AccordionItem title="System Requirements">
+                    <Box p={5}>
+                        <Column gap={10}>
+                            <Row gap={10}>
+                                <Icon name="checkmark-circle" size={18} color="#10B981" />
+                                <Text size={14}>React Native 0.71+</Text>
+                            </Row>
+                            <Row gap={10}>
+                                <Icon name="checkmark-circle" size={18} color="#10B981" />
+                                <Text size={14}>Reanimated 3.0+</Text>
+                            </Row>
+                            <Row gap={10}>
+                                <Icon name="checkmark-circle" size={18} color="#10B981" />
+                                <Text size={14}>Gesture Handler 2.0+</Text>
+                            </Row>
+                        </Column>
                     </Box>
                 </AccordionItem>
             </Box>
