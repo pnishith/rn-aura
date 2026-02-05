@@ -47,8 +47,8 @@ export const AccordionItem: React.FC<AccordionItemProps> = ({
   React.useEffect(() => {
     if (isExpanded && contentHeight > 0) {
       height.value = withSpring(contentHeight, {
-        damping: 50,
-        stiffness: 400,
+        damping: 30,
+        stiffness: 300,
       });
       rotation.value = withTiming(0, { duration: 250 });
     } else {
