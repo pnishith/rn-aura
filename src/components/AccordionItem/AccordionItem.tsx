@@ -10,45 +10,65 @@ import Animated, {
   useSharedValue, 
   useAnimatedStyle, 
   withTiming, 
-  withSpring
+  withSpring,
 } from 'react-native-reanimated';
 
 export interface AccordionItemProps {
   title: string;
   children: React.ReactNode;
-  expanded?: boolean;
-  onPress?: () => void;
+  expanded?: boolean; // Optional: Controlled state
+  onPress?: () => void; // Optional: Controlled callback
   style?: ViewStyle;
+  initialExpanded?: boolean;
 }
 
+/**
+ * A smooth, animated Accordion component.
+ * Supports both controlled and uncontrolled modes.
+ */
 export const AccordionItem: React.FC<AccordionItemProps> = ({
   title,
   children,
-  expanded = false,
-  onPress,
+  expanded: controlledExpanded,
+  onPress: controlledOnPress,
   style,
+  initialExpanded = false,
 }) => {
+  // Uncontrolled state fallback
+  const [internalExpanded, setInternalExpanded] = useState(initialExpanded);
+  const isExpanded = controlledExpanded !== undefined ? controlledExpanded : internalExpanded;
+
   const [contentHeight, setContentHeight] = useState(0);
+  
+  // Animation values
   const height = useSharedValue(0);
   const rotation = useSharedValue(0);
 
   React.useEffect(() => {
-    if (expanded) {
+    if (isExpanded && contentHeight > 0) {
       height.value = withSpring(contentHeight, {
-        damping: 15,
-        stiffness: 100,
+        damping: 50,
+        stiffness: 400,
       });
-      rotation.value = withTiming(180, { duration: 250 });
+      rotation.value = withTiming(0, { duration: 250 });
     } else {
       height.value = withTiming(0, { duration: 250 });
       rotation.value = withTiming(0, { duration: 250 });
     }
-  }, [expanded, contentHeight]);
+  }, [isExpanded, contentHeight, height, rotation]);
+
+  const handlePress = () => {
+    if (controlledOnPress) {
+      controlledOnPress();
+    } else {
+      setInternalExpanded(!internalExpanded);
+    }
+  };
 
   const rStyle = useAnimatedStyle(() => {
     return {
       height: height.value,
-      opacity: height.value === 0 ? 0 : 1,
+      opacity: height.value > 0 ? 1 : 0,
     };
   });
 
@@ -60,15 +80,21 @@ export const AccordionItem: React.FC<AccordionItemProps> = ({
 
   return (
     <View style={[styles.container, style]}>
-      <Pressable onPress={onPress} style={styles.header}>
+      <Pressable onPress={handlePress} style={styles.header}>
         <Text style={styles.title}>{title}</Text>
-        <Animated.Text style={[styles.icon, rIconStyle]}>▼</Animated.Text>
+        <Animated.View style={rIconStyle}>
+            <Text style={styles.icon}>▼</Text>
+        </Animated.View>
       </Pressable>
+      
       <Animated.View style={[styles.contentWrapper, rStyle]}>
         <View
           style={styles.contentInner}
           onLayout={(e) => {
-            setContentHeight(e.nativeEvent.layout.height);
+            const h = e.nativeEvent.layout.height;
+            if (h > 0 && h !== contentHeight) {
+                setContentHeight(h);
+            }
           }}
         >
           {children}
@@ -80,34 +106,37 @@ export const AccordionItem: React.FC<AccordionItemProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    backgroundColor: '#FFF',
     overflow: 'hidden',
+    marginVertical: 4,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: 14,
     paddingHorizontal: 16,
     backgroundColor: '#FFF',
   },
   title: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
+    color: '#111827',
   },
   icon: {
     fontSize: 12,
-    color: '#666',
+    color: '#6B7280',
   },
   contentWrapper: {
     overflow: 'hidden',
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#F9FAFB',
   },
   contentInner: {
     padding: 16,
-    position: 'absolute',
+    // Note: absolute is removed to ensure natural layout flow during measurement
     width: '100%',
-    top: 0,
   },
 });
