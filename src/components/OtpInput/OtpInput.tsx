@@ -65,27 +65,27 @@ const OtpBox: React.FC<OtpBoxProps> = ({
 }) => {
   const isActive = isFocused && isCurrent;
   const isFilled = !!char;
-  
+
   const scale = useSharedValue(1);
-  
+
   useEffect(() => {
     if (isActive || isFilled) {
-      scale.value = withSpring(1.05, { damping: 10, stiffness: 200 });
+      scale.value = withSpring(1.05, { damping: 50, stiffness: 400 }); // Snappier spring
     } else {
-      scale.value = withSpring(1);
+      scale.value = withSpring(1, { damping: 50, stiffness: 400 });
     }
   }, [isActive, isFilled]);
 
   const animatedBoxStyle = useAnimatedStyle(() => {
     return {
       transform: [{ scale: scale.value }],
-      borderColor: !!error
+      borderColor: withTiming(!!error
         ? '#EF4444'
         : isActive
-        ? cursorColor
-        : isFilled
-        ? '#9CA3AF'
-        : '#E5E7EB',
+          ? cursorColor
+          : isFilled
+            ? '#9CA3AF'
+            : '#E5E7EB', { duration: 50 }), // Snappy border color transition
       borderWidth: (isActive || !!error) ? 2 : 1,
     };
   });
@@ -99,7 +99,7 @@ const OtpBox: React.FC<OtpBoxProps> = ({
   return (
     <Animated.View
       entering={ZoomIn.delay(index * 50).springify()}
-      style={[styles.box, boxStyle, animatedBoxStyle, error && errorBoxStyle, isActive && activeBoxStyle]}
+      style={[styles.box, boxStyle, animatedBoxStyle, !!error && errorBoxStyle, isActive && activeBoxStyle]}
     >
       {isFilled ? (
         <Animated.Text style={[styles.text, textStyle]}>
@@ -138,8 +138,8 @@ export const OtpInput: React.FC<OtpInputProps> = ({
 }) => {
   const inputRef = useRef<TextInput>(null);
   const [isFocused, setIsFocused] = useState(false);
-  
-  // Animation Values
+
+  // Animation Values  
   const shake = useSharedValue(0);
   const cursorOpacity = useSharedValue(0);
 
@@ -152,7 +152,7 @@ export const OtpInput: React.FC<OtpInputProps> = ({
         withTiming(0, { duration: 50 })
       );
     }
-  }, [error]);
+  }, [error, shake]);
 
   // Cursor blink loop
   useEffect(() => {
@@ -166,9 +166,9 @@ export const OtpInput: React.FC<OtpInputProps> = ({
         true
       );
     } else {
-      cursorOpacity.value = withTiming(0);
+      cursorOpacity.value = 0;
     }
-  }, [isFocused]);
+  }, [isFocused, cursorOpacity]);
 
   const handlePress = () => {
     (inputRef.current as any)?.focus?.();
@@ -186,8 +186,8 @@ export const OtpInput: React.FC<OtpInputProps> = ({
   });
 
   return (
-    <AnimatedPressable 
-      onPress={handlePress} 
+    <AnimatedPressable
+      onPress={handlePress}
       style={[styles.container, style, shakeStyle]}
     >
       {/* Hidden Native Input */}
@@ -215,7 +215,7 @@ export const OtpInput: React.FC<OtpInputProps> = ({
             char={value[i]}
             isFocused={isFocused}
             isCurrent={i === value.length}
-            error={error}
+            error={!!error}
             secure={secure}
             cursorColor={cursorColor}
             boxStyle={boxStyle}
