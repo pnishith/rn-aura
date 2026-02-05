@@ -23,7 +23,8 @@ import {
   SmartButton,
   Chip,
   RatingSwipe,
-  FloatingInput
+  FloatingInput,
+  Confetti
 } from 'rn-aura';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -35,14 +36,23 @@ export default function OtpTestScreen() {
   const [checked, setChecked] = useState(false);
   const [rating, setRating] = useState(0);
   const [email, setEmail] = useState('');
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const handleOtpChange = (value: string) => {
     setOtp(value);
     setOtpError(value.length === 4 && value !== '1234');
   };
 
+  const triggerConfetti = () => {
+    setShowConfetti(true);
+    // State is auto-reset by the component internally after 5s, 
+    // but we reset it here to allow re-triggering.
+    setTimeout(() => setShowConfetti(false), 100);
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <Confetti active={showConfetti} />
       <SafeAreaView style={styles.container}>
         <KeyboardAvoidingView 
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
@@ -122,7 +132,7 @@ export default function OtpTestScreen() {
               <Column gap={15}>
                 <SmartButton 
                   title="Smart Button (Confetti)" 
-                  onPress={() => Alert.alert('Action Triggered')} 
+                  onPress={triggerConfetti} 
                 />
                 <SwipeButton 
                   title="Slide to Confirm" 

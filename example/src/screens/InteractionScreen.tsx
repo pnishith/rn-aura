@@ -26,7 +26,7 @@ export default function InteractionScreen() {
 
   const triggerConfetti = () => {
     setShowConfetti(true);
-    setTimeout(() => setShowConfetti(false), 3000);
+    setTimeout(() => setShowConfetti(false), 100);
   };
 
   return (
