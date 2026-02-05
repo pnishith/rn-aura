@@ -56,8 +56,8 @@ export const Tabs: React.FC<TabsProps> = ({
   React.useEffect(() => {
     if (tabWidth > 0 && activeIndex >= 0) {
       indicatorX.value = withSpring(activeIndex * tabWidth, {
-        damping: 15,
-        stiffness: 100,
+        damping: 50,
+        stiffness: 400,
       });
       indicatorWidth.value = withTiming(tabWidth, { duration: 200 });
     }
