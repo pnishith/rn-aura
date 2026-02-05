@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
-import { Pressable, StyleSheet, type ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
-  withSpring, 
-  withSequence
+  withSpring,
+  interpolateColor
 } from 'react-native-reanimated';
 
 export interface BouncingCheckboxProps {
@@ -18,55 +18,88 @@ export interface BouncingCheckboxProps {
 export const BouncingCheckbox: React.FC<BouncingCheckboxProps> = ({
   checked,
   onChange,
-  color = '#000',
-  size = 24,
+  color = '#4F46E5', // Indigo-600
+  size = 26,
   style,
 }) => {
-  const scale = useSharedValue(1);
-  const checkScale = useSharedValue(checked ? 1 : 0);
+  const bounce = useSharedValue(1);
+  const progress = useSharedValue(checked ? 1 : 0);
 
   useEffect(() => {
+    // Smooth transition for color and checkmark scaling
+    progress.value = withSpring(checked ? 1 : 0, { 
+        damping: 20, 
+        stiffness: 200,
+        mass: 0.5 
+    });
+    
+    // Tuck-and-pop impact animation
     if (checked) {
-      checkScale.value = withSpring(1, { damping: 12, stiffness: 200 });
-      scale.value = withSequence(
-        withSpring(0.8, { damping: 15, stiffness: 400 }),
-        withSpring(1, { damping: 8, stiffness: 300 })
-      );
-    } else {
-      checkScale.value = withSpring(0);
+       bounce.value = 0.8;
+       bounce.value = withSpring(1, { 
+           damping: 12, 
+           stiffness: 300,
+           mass: 0.8
+       });
     }
   }, [checked]);
 
   const rContainerStyle = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      progress.value,
+      [0, 1],
+      ['transparent', color]
+    );
+    const borderColor = interpolateColor(
+      progress.value,
+      [0, 1],
+      ['#D1D5DB', color]
+    );
+
     return {
-      transform: [{ scale: scale.value }],
-      borderColor: checked ? color : '#C0C0C0',
-      backgroundColor: checked ? color : 'transparent',
+      backgroundColor,
+      borderColor,
+      transform: [{ scale: bounce.value }],
     };
   });
 
   const rCheckStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ scale: checkScale.value }],
-      opacity: checkScale.value,
+      opacity: progress.value,
+      transform: [
+        { scale: progress.value },
+        { rotate: '-45deg' },
+        { translateY: (1 - progress.value) * -2 }
+      ],
     };
   });
 
   return (
-    <Pressable onPress={() => onChange(!checked)} hitSlop={8}>
+    <Pressable onPress={() => onChange(!checked)} hitSlop={10}>
       <Animated.View 
         style={[
           styles.container, 
-          { width: size, height: size, borderRadius: size / 4 }, 
+          { 
+            width: size, 
+            height: size, 
+            borderRadius: size / 3.5, 
+          }, 
           style, 
           rContainerStyle
         ]}
       >
-        <Animated.View style={[styles.checkmark, rCheckStyle]}>
-          {/* Simple CSS Checkmark */}
-          <Animated.View style={styles.checkShort} />
-          <Animated.View style={styles.checkLong} />
-        </Animated.View>
+        <Animated.View 
+          style={[
+            styles.checkIcon, 
+            { 
+                width: size * 0.5, 
+                height: size * 0.28,
+                borderLeftWidth: size * 0.1,
+                borderBottomWidth: size * 0.1,
+            }, 
+            rCheckStyle
+          ]}
+        />
       </Animated.View>
     </Pressable>
   );
@@ -77,32 +110,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
-  checkmark: {
-    width: '100%',
-    height: '100%',
-    position: 'relative',
-    left: 1, // Visual adjustment
-    top: -1,
-  },
-  checkShort: {
-    position: 'absolute',
-    width: 2,
-    height: 6,
-    backgroundColor: '#FFF',
-    left: 6,
-    top: 10,
-    transform: [{ rotate: '-45deg' }],
-    borderRadius: 1,
-  },
-  checkLong: {
-    position: 'absolute',
-    width: 2,
-    height: 12,
-    backgroundColor: '#FFF',
-    left: 14,
-    top: 5,
-    transform: [{ rotate: '45deg' }],
-    borderRadius: 1,
+  checkIcon: {
+      borderColor: '#FFF',
+      marginTop: -2, // Optical centering adjustment
+      marginLeft: 1,
   }
 });
