@@ -7,28 +7,25 @@ import Animated, {
   runOnJS,
   withSpring,
 } from 'react-native-reanimated';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 interface RatingSwipeProps {
   onRatingChange: (rating: number) => void;
   maxRating?: number;
   initialRating?: number;
   showSliderBackground?: boolean;
+  activeColor?: string;
+  inactiveColor?: string;
+  size?: number;
 }
 
-const StarIcon = ({ fill = 'none', color = '#D1D5DB', size = 24 }: { fill?: string, color?: string, size?: number }) => (
-    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
-        <Text 
-          style={{ 
-            fontSize: size, 
-            lineHeight: size, 
-            color: fill !== 'none' ? fill : color,
-            includeFontPadding: false,
-            textAlignVertical: 'center',
-          }}
-        >
-          ★
-        </Text>
-    </View>
+const StarIcon = ({ fill = false, color = '#D1D5DB', size = 24 }: { fill?: boolean, color?: string, size?: number }) => (
+    <Icon 
+      name={fill ? "star" : "star-outline"} 
+      size={size} 
+      color={color}
+      style={{ textAlign: 'center' }}
+    />
 );
 
 export const RatingSwipe: React.FC<RatingSwipeProps> = ({
@@ -36,9 +33,11 @@ export const RatingSwipe: React.FC<RatingSwipeProps> = ({
   maxRating = 5,
   initialRating = 0,
   showSliderBackground = true,
+  activeColor = '#FFB800',
+  inactiveColor = '#E5E7EB',
+  size = 30,
 }) => {
   const containerWidth = 280;
-  const starSize = 32;
   const slotWidth = containerWidth / maxRating;
   
   // Shared values for high-performance gesture handling
@@ -76,7 +75,7 @@ export const RatingSwipe: React.FC<RatingSwipeProps> = ({
     .onEnd((e) => {
       const x = Math.max(0, Math.min(e.x, containerWidth));
       const rawRating = (x / containerWidth) * maxRating;
-      // Clicking always rounds UP to the next full star
+      // Clicking always rounds UP to the next full star for better UX
       const fullRating = Math.ceil(rawRating); 
       applyRating(fullRating, true);
     });
@@ -118,34 +117,34 @@ export const RatingSwipe: React.FC<RatingSwipeProps> = ({
     <View style={styles.outerContainer}>
         <GestureDetector gesture={composed}>
             <View style={[styles.container, { width: containerWidth }]}>
-                {/* Background Layer: Empty Stars */}
-                <View style={styles.starRow}>
-                {Array.from({ length: maxRating }).map((_, i) => (
-                    <View key={i} style={[styles.starSlot, { width: slotWidth }]}>
-                        <StarIcon size={starSize} color="#E5E7EB" />
-                    </View>
-                ))}
-                </View>
-
-                {/* Optional Slider Track Background */}
+                {/* Background Slider Track */}
                 {showSliderBackground && (
                     <View style={[styles.sliderTrack, { width: containerWidth }]}>
                         <Animated.View 
                             style={[
                                 styles.sliderFill, 
                                 animatedFillStyle,
-                                { backgroundColor: '#FFB800', opacity: 0.1 }
+                                { backgroundColor: activeColor, opacity: 0.1 }
                             ]} 
                         />
                     </View>
                 )}
 
-                {/* Foreground Layer: Gold Stars with clipping fill */}
+                {/* Background Layer: Empty Stars */}
+                <View style={styles.starRow}>
+                {Array.from({ length: maxRating }).map((_, i) => (
+                    <View key={i} style={[styles.starSlot, { width: slotWidth }]}>
+                        <StarIcon size={size} color={inactiveColor} />
+                    </View>
+                ))}
+                </View>
+
+                {/* Foreground Layer: Active Stars with clipping fill */}
                 <Animated.View style={[styles.fillOverlay, animatedFillStyle]}>
                     <View style={[styles.starRow, { width: containerWidth }]} pointerEvents="none">
                         {Array.from({ length: maxRating }).map((_, i) => (
                             <View key={i} style={[styles.starSlot, { width: slotWidth }]}>
-                                <StarIcon size={starSize} fill="#FFB800" />
+                                <StarIcon size={size} fill color={activeColor} />
                             </View>
                         ))}
                     </View>
@@ -166,13 +165,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     position: 'relative',
     borderRadius: 12,
-    backgroundColor: 'transparent',
   },
   starRow: {
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
     height: '100%',
+    position: 'absolute', // Ensures perfect stacking
+    top: 0,
+    left: 0,
   },
   starSlot: {
     height: '100%',
@@ -190,9 +191,9 @@ const styles = StyleSheet.create({
   sliderTrack: {
     position: 'absolute',
     left: 0,
-    top: 12,
-    bottom: 12,
-    // backgroundColor: '#F3F4F6',
+    top: 15, // Precisely vertically centered (container 60, track 30)
+    bottom: 15,
+    backgroundColor: '#F3F4F6',
     borderRadius: 8,
     overflow: 'hidden',
   },
