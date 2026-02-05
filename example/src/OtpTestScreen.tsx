@@ -61,7 +61,62 @@ export default function OtpTestScreen() {
 
   const triggerConfetti = () => {
     setShowConfetti(true);
-    setTimeout(() => setShowConfetti(false), 100);
+    // setTimeout(() => setShowConfetti(false), 100);
+  };
+
+  /**
+   * Helper to render content based on the active tab
+   */
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 0:
+        return (
+          <Box p={20} bg="#F9FAFB" style={{ borderRadius: 12 }}>
+            <Heading level={6} style={{ marginBottom: 10 }}>Project Overview</Heading>
+            <Text size={14} color="#6B7280">
+              Welcome to the Aura Overview. This project focuses on solving the most complex UI challenges in the React Native ecosystem with high-performance Reanimated components.
+            </Text>
+          </Box>
+        );
+      case 1:
+        return (
+          <Box p={20} bg="#EFF6FF" style={{ borderRadius: 12 }}>
+            <Heading level={6} style={{ marginBottom: 10, color: '#1E40AF' }}>Technical Details</Heading>
+            <Column gap={10}>
+                <Row gap={8}>
+                    <Icon name="hardware-chip-outline" size={16} color="#3B82F6" />
+                    <Text size={13} weight="600">Fabric Enabled</Text>
+                </Row>
+                <Row gap={8}>
+                    <Icon name="flash-outline" size={16} color="#3B82F6" />
+                    <Text size={13} weight="600">60/120 FPS Animations</Text>
+                </Row>
+                <Row gap={8}>
+                    <Icon name="logo-typescript" size={16} color="#3B82F6" />
+                    <Text size={13} weight="600">Strictly Typed</Text>
+                </Row>
+            </Column>
+          </Box>
+        );
+      case 2:
+        return (
+          <Box p={20} bg="#F0FDF4" style={{ borderRadius: 12 }}>
+            <Heading level={6} style={{ marginBottom: 10, color: '#166534' }}>User Reviews</Heading>
+            <Row gap={5} style={{ marginBottom: 8 }}>
+                <Icon name="star" size={16} color="#FBBC05" />
+                <Icon name="star" size={16} color="#FBBC05" />
+                <Icon name="star" size={16} color="#FBBC05" />
+                <Icon name="star" size={16} color="#FBBC05" />
+                <Icon name="star-half" size={16} color="#FBBC05" />
+            </Row>
+            <Text size={13} italic color="#166534">
+              "The best UI kit for modern apps. The performance is incredible!"
+            </Text>
+          </Box>
+        );
+      default:
+        return null;
+    }
   };
 
   return (
@@ -150,7 +205,7 @@ export default function OtpTestScreen() {
 
             {/* 5. Layout & Navigation */}
             <Box mb={40} width="100%">
-                <Heading level={5} style={{ marginBottom: 15 }}>5. Layout & Tabs</Heading>
+                <Heading level={5} style={{ marginBottom: 15 }}>5. Tabs & Dynamic Content</Heading>
                 <Tabs 
                     tabs={[
                         { key: 0, title: 'Overview' },
@@ -162,43 +217,51 @@ export default function OtpTestScreen() {
                     style={{ marginBottom: 15 }}
                 />
                 
-                <AccordionItem title="Project Mission Details">
-                    <Box p={5}>
-                        <Text size={14} color="#4B5563" style={{ marginBottom: 12 }}>
-                            Aura is a high-performance component library built for React Native 0.83+.
-                        </Text>
-                        <Row gap={8} wrap="wrap" style={{ marginBottom: 12 }}>
-                            <Chip label="High Performance" variant="outlined" color="#10B981" />
-                            <Chip label="Fabric Ready" variant="outlined" color="#3B82F6" />
-                            <Chip label="Modern Design" variant="outlined" color="#6366F1" />
-                        </Row>
-                        <SmartButton 
-                            title="Learn More" 
-                            variant="outlined" 
-                            style={{ minHeight: 40, paddingVertical: 8 }} 
-                            onPress={() => Alert.alert('Navigating to docs...')}
-                        />
-                    </Box>
-                </AccordionItem>
+                {/* Dynamic Content based on Active Tab */}
+                <Box style={{ minHeight: 120 }}>
+                    {renderTabContent()}
+                </Box>
 
-                <AccordionItem title="System Requirements">
-                    <Box p={5}>
-                        <Column gap={10}>
-                            <Row gap={10}>
-                                <Icon name="checkmark-circle" size={18} color="#10B981" />
-                                <Text size={14}>React Native 0.71+</Text>
+                <Box mt={25}>
+                    <Heading level={6} style={{ marginBottom: 15 }}>Accordion Testing</Heading>
+                    <AccordionItem title="Project Mission Details">
+                        <Box p={5}>
+                            <Text size={14} color="#4B5563" style={{ marginBottom: 12 }}>
+                                Aura is a high-performance component library built for React Native 0.83+.
+                            </Text>
+                            <Row gap={8} wrap="wrap" style={{ marginBottom: 12 }}>
+                                <Chip label="High Performance" variant="outlined" color="#10B981" />
+                                <Chip label="Fabric Ready" variant="outlined" color="#3B82F6" />
+                                <Chip label="Modern Design" variant="outlined" color="#6366F1" />
                             </Row>
-                            <Row gap={10}>
-                                <Icon name="checkmark-circle" size={18} color="#10B981" />
-                                <Text size={14}>Reanimated 3.0+</Text>
-                            </Row>
-                            <Row gap={10}>
-                                <Icon name="checkmark-circle" size={18} color="#10B981" />
-                                <Text size={14}>Gesture Handler 2.0+</Text>
-                            </Row>
-                        </Column>
-                    </Box>
-                </AccordionItem>
+                            <SmartButton 
+                                title="Learn More" 
+                                variant="outlined" 
+                                style={{ minHeight: 40, paddingVertical: 8 }} 
+                                onPress={() => Alert.alert('Navigating to docs...')}
+                            />
+                        </Box>
+                    </AccordionItem>
+
+                    <AccordionItem title="System Requirements">
+                        <Box p={5}>
+                            <Column gap={10}>
+                                <Row gap={10}>
+                                    <Icon name="checkmark-circle" size={18} color="#10B981" />
+                                    <Text size={14}>React Native 0.71+</Text>
+                                </Row>
+                                <Row gap={10}>
+                                    <Icon name="checkmark-circle" size={18} color="#10B981" />
+                                    <Text size={14}>Reanimated 3.0+</Text>
+                                </Row>
+                                <Row gap={10}>
+                                    <Icon name="checkmark-circle" size={18} color="#10B981" />
+                                    <Text size={14}>Gesture Handler 2.0+</Text>
+                                </Row>
+                            </Column>
+                        </Box>
+                    </AccordionItem>
+                </Box>
             </Box>
 
             {/* 6. Interaction Row */}
