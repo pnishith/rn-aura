@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -33,33 +33,38 @@ export const FloatingInput: React.FC<FloatingInputProps> = ({
   containerStyle,
   labelStyle,
   inputStyle,
-  activeColor = '#007AFF',
-  inactiveColor = '#9E9E9E',
+  activeColor = '#4F46E5',
+  inactiveColor = '#9CA3AF',
   error,
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
+  
+  // Use a strictly controlled shared value for the animation
   const focusAnim = useSharedValue(value ? 1 : 0);
 
-  React.useEffect(() => {
-    focusAnim.value = withTiming(isFocused || value ? 1 : 0, { duration: 200 });
-  }, [isFocused, value]);
+  useEffect(() => {
+    focusAnim.value = withTiming(isFocused || !!value ? 1 : 0, { duration: 200 });
+  }, [isFocused, value, focusAnim]);
 
   const handleFocus = () => setIsFocused(true);
   const handleBlur = () => setIsFocused(false);
 
   const rLabelStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(focusAnim.value, [0, 1], [18, -10]);
+    // 18 is the vertical center for a 56px height container
+    const translateY = interpolate(focusAnim.value, [0, 1], [0, -28]);
     const scale = interpolate(focusAnim.value, [0, 1], [1, 0.85]);
     const color = interpolateColor(focusAnim.value, [0, 1], [inactiveColor, activeColor]);
     
     return {
       transform: [
         { translateY },
-        { translateX: -((1 - scale) * 10) }, // Approximate adjustment for origin
+        { translateX: -((1 - scale) * 20) }, 
         { scale }
       ],
-      color: error ? '#FF3B30' : color,
+      color: error ? '#EF4444' : color,
+      backgroundColor: focusAnim.value > 0.5 ? '#FFF' : 'transparent',
+      paddingHorizontal: focusAnim.value > 0.5 ? 4 : 0,
     };
   });
 
@@ -71,7 +76,7 @@ export const FloatingInput: React.FC<FloatingInputProps> = ({
     );
     
     return {
-      borderColor: error ? '#FF3B30' : borderColor,
+      borderColor: error ? '#EF4444' : borderColor,
       borderWidth: isFocused ? 2 : 1,
     };
   });
@@ -79,9 +84,19 @@ export const FloatingInput: React.FC<FloatingInputProps> = ({
   return (
     <View style={[styles.wrapper, containerStyle]}>
       <Animated.View style={[styles.container, rContainerStyle]}>
-        <Animated.Text style={[styles.label, labelStyle, rLabelStyle]}>
-          {label}
-        </Animated.Text>
+        <View style={StyleSheet.absoluteFill} pointerEvents="none">
+            <Animated.Text 
+              style={[
+                styles.label, 
+                labelStyle, 
+                rLabelStyle,
+                // Ensure initial state is applied before animation runs
+                { position: 'absolute' } 
+              ]}
+            >
+              {label}
+            </Animated.Text>
+        </View>
         <TextInput
           style={[styles.input, inputStyle]}
           value={value}
@@ -104,29 +119,28 @@ const styles = StyleSheet.create({
   },
   container: {
     height: 56,
-    borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 12,
     paddingHorizontal: 12,
     justifyContent: 'center',
     backgroundColor: '#FFF',
+    position: 'relative',
   },
   label: {
-    position: 'absolute',
     left: 12,
-    top: 0,
+    top: 18,
     fontSize: 16,
     zIndex: 1,
-    backgroundColor: 'transparent', // Or white if overlapping border, but here it's inside
   },
   input: {
     fontSize: 16,
-    color: '#000',
-    marginTop: 8, // Space for label
-    height: 40,
+    color: '#111827',
+    marginTop: 4, 
+    height: 48,
     padding: 0,
+    textAlignVertical: 'center',
   },
   errorText: {
-    color: '#FF3B30',
+    color: '#EF4444',
     fontSize: 12,
     marginTop: 4,
     marginLeft: 4,
