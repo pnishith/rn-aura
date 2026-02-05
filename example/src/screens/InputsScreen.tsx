@@ -34,9 +34,8 @@ export default function InputsScreen() {
           <Heading level={5} style={{ marginBottom: 10 }}>Currency Input</Heading>
           <CurrencyInput
             value={currency}
-            onChangeText={setCurrency}
-            placeholder="$0.00"
-            style={{ borderWidth: 1, borderColor: '#E5E7EB', padding: 10, borderRadius: 8 }}
+            onChangeValue={setCurrency}
+            placeholder="0.00"
           />
         </Box>
 

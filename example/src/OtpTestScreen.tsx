@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   StyleSheet, 
   View, 
@@ -24,8 +24,15 @@ import {
   Chip,
   RatingSwipe,
   FloatingInput,
-  Confetti
+  Confetti,
+  CurrencyInput,
+  Marquee,
+  PulseDot,
+  Skeleton,
+  AccordionItem,
+  Tabs
 } from 'rn-aura';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function OtpTestScreen() {
@@ -37,6 +44,15 @@ export default function OtpTestScreen() {
   const [rating, setRating] = useState(0);
   const [email, setEmail] = useState('');
   const [showConfetti, setShowConfetti] = useState(false);
+  const [amount, setAmount] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState(0);
+
+  useEffect(() => {
+    // Skeleton live for 10 seconds per request
+    const timer = setTimeout(() => setIsLoading(false), 10000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleOtpChange = (value: string) => {
     setOtp(value);
@@ -45,8 +61,6 @@ export default function OtpTestScreen() {
 
   const triggerConfetti = () => {
     setShowConfetti(true);
-    // State is auto-reset by the component internally after 5s, 
-    // but we reset it here to allow re-triggering.
     setTimeout(() => setShowConfetti(false), 100);
   };
 
@@ -92,9 +106,71 @@ export default function OtpTestScreen() {
               />
             </Box>
 
-            {/* 3. Interaction Row */}
+            {/* 3. Currency Input */}
             <Box mb={40} width="100%">
-              <Heading level={5} style={{ marginBottom: 15 }}>3. Switches & Checkboxes</Heading>
+                <Heading level={5} style={{ marginBottom: 15 }}>3. Production Currency Input (Multi-Symbol)</Heading>
+                <CurrencyInput 
+                    value={amount}
+                    onChangeValue={setAmount}
+                    placeholder="0.00"
+                    currencies={[
+                        { symbol: '$', locale: 'en-US' },
+                        { symbol: '₹', locale: 'en-IN' },
+                        { symbol: <Icon name="logo-bitcoin" size={20} color="#F7931A" />, locale: 'en-US' },
+                        { symbol: '€', locale: 'de-DE' }
+                    ]}
+                />
+                <Text size={12} color="#6B7280" style={{ marginTop: 8 }}>Numeric State: {amount}</Text>
+            </Box>
+
+            {/* 4. Visual Feedback */}
+            <Box mb={40} width="100%">
+                <Heading level={5} style={{ marginBottom: 15 }}>4. Visual Feedback</Heading>
+                <Box bg="#F3F4F6" p={12} style={{ borderRadius: 12, overflow: 'hidden', marginBottom: 15 }}>
+                    <Marquee text="🚀 RN Aura is building the future of React Native UI kits! " speed={40} />
+                </Box>
+                <Row gap={15} align="center">
+                    <Box center>
+                        <PulseDot size={12} color="#10B981" />
+                        <Text size={10} color="#6B7280" style={{ marginTop: 5 }}>Online</Text>
+                    </Box>
+                    <Box center>
+                        <PulseDot size={12} color="#EF4444" />
+                        <Text size={10} color="#6B7280" style={{ marginTop: 5 }}>Recording</Text>
+                    </Box>
+                    <Box flex={1}>
+                        {isLoading ? (
+                            <Skeleton width="100%" height={20} style={{ borderRadius: 4 }} />
+                        ) : (
+                            <Text size={14} color="#374151">Data Loaded (after 10s)</Text>
+                        )}
+                    </Box>
+                </Row>
+            </Box>
+
+            {/* 5. Layout & Navigation */}
+            <Box mb={40} width="100%">
+                <Heading level={5} style={{ marginBottom: 15 }}>5. Layout & Tabs</Heading>
+                <Tabs 
+                    tabs={[
+                        { key: 0, title: 'Overview' },
+                        { key: 1, title: 'Details' },
+                        { key: 2, title: 'Reviews' }
+                    ]}
+                    activeKey={activeTab}
+                    onChange={setActiveTab}
+                    style={{ marginBottom: 15 }}
+                />
+                <AccordionItem title="Expand for more info">
+                    <Box p={15}>
+                        <Text color="#4B5563">This is an Accordion component working inside the test lab.</Text>
+                    </Box>
+                </AccordionItem>
+            </Box>
+
+            {/* 6. Interaction Row */}
+            <Box mb={40} width="100%">
+              <Heading level={5} style={{ marginBottom: 15 }}>6. Switches & Checkboxes</Heading>
               <Row justify="space-between" style={{ marginBottom: 15, padding: 10, backgroundColor: '#F9FAFB', borderRadius: 12 }}>
                 <Text weight="600">Fluid Switch</Text>
                 <FluidSwitch value={switchVal} onValueChange={setSwitchVal} />
@@ -105,30 +181,19 @@ export default function OtpTestScreen() {
               </Row>
             </Box>
 
-            {/* 4. Rating Swipe */}
+            {/* 7. Rating Swipe */}
             <Box mb={40} width="100%">
-              <Heading level={5} style={{ marginBottom: 15 }}>4. Rating Swipe</Heading>
+              <Heading level={5} style={{ marginBottom: 15 }}>7. Rating Swipe</Heading>
               <RatingSwipe 
                 onRatingChange={(r) => setRating(r)} 
                 initialRating={rating}
+                showSliderBackground
               />
-              <Text size={12} color="#6B7280" style={{ marginTop: 8 }}>Current Rating: {rating}/5</Text>
             </Box>
 
-            {/* 5. Chips */}
+            {/* 8. Buttons */}
             <Box mb={40} width="100%">
-              <Heading level={5} style={{ marginBottom: 15 }}>5. Animated Chips</Heading>
-              <Row wrap="wrap" gap={10}>
-                <Chip label="Default" onPress={() => {}} />
-                <Chip label="Selected" selected onPress={() => {}} />
-                <Chip label="Outlined" variant="outlined" color="#10B981" onPress={() => {}} />
-                <Chip label="Custom Color" color="#F59E0B" selected onPress={() => {}} />
-              </Row>
-            </Box>
-
-            {/* 6. Buttons */}
-            <Box mb={40} width="100%">
-              <Heading level={5} style={{ marginBottom: 15 }}>6. Premium Buttons</Heading>
+              <Heading level={5} style={{ marginBottom: 15 }}>8. Premium Buttons</Heading>
               <Column gap={15}>
                 <SmartButton 
                   title="Smart Button (Confetti)" 
