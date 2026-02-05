@@ -19,6 +19,10 @@ interface RatingSwipeProps {
   size?: number;
 }
 
+/**
+ * Internal StarIcon component to handle consistent rendering between 
+ * the background and the foreground clipping layer.
+ */
 const StarIcon = ({ fill = false, color = '#D1D5DB', size = 24 }: { fill?: boolean, color?: string, size?: number }) => (
     <Icon 
       name={fill ? "star" : "star-outline"} 
@@ -40,21 +44,24 @@ export const RatingSwipe: React.FC<RatingSwipeProps> = ({
   const containerWidth = 280;
   const slotWidth = containerWidth / maxRating;
   
-  // Shared values for high-performance gesture handling
+  // Shared values for high-performance gesture handling without bridging overhead
   const ratingSv = useSharedValue(initialRating);
   const width = useSharedValue((initialRating / maxRating) * containerWidth);
   
-  // Local state for UI feedback
+  // Local state for UI feedback and numerical display
   const [jsRating, setJsRating] = useState(initialRating);
 
-  // Sync with external initialRating prop changes
+  // Sync with external initialRating prop changes (e.g. if parent resets state)
   useEffect(() => {
     ratingSv.value = initialRating;
     width.value = withSpring((initialRating / maxRating) * containerWidth);
     setJsRating(initialRating);
   }, [initialRating, maxRating]);
 
-  // Unified logic to apply rating from any interaction
+  /**
+   * Unified logic to apply rating from any interaction (tap or pan).
+   * Ensures state and visual fill stay perfectly in sync.
+   */
   const applyRating = (newRating: number, animate: boolean = true) => {
     'worklet';
     ratingSv.value = newRating;
@@ -66,6 +73,7 @@ export const RatingSwipe: React.FC<RatingSwipeProps> = ({
         width.value = targetWidth;
     }
     
+    // Bridge back to JS for state updates and callbacks
     runOnJS(setJsRating)(newRating);
     runOnJS(onRatingChange)(newRating);
   };
@@ -75,14 +83,14 @@ export const RatingSwipe: React.FC<RatingSwipeProps> = ({
     .onEnd((e) => {
       const x = Math.max(0, Math.min(e.x, containerWidth));
       const rawRating = (x / containerWidth) * maxRating;
-      // Clicking always rounds UP to the next full star for better UX
+      // Clicking always rounds UP to the next full star for a more predictable UX
       const fullRating = Math.ceil(rawRating); 
       applyRating(fullRating, true);
     });
 
-  // Pan gesture for smooth 0.5 increment swiping
+  // Pan gesture for smooth 0.5 increment swiping with snapping physics
   const pan = Gesture.Pan()
-    .minDistance(0) // Handle immediate touch
+    .minDistance(0) // Handle immediate touch response on start
     .onStart((e) => {
         const x = Math.max(0, Math.min(e.x, containerWidth));
         const rawRating = (x / containerWidth) * maxRating;
@@ -94,32 +102,42 @@ export const RatingSwipe: React.FC<RatingSwipeProps> = ({
       const rawRating = (x / containerWidth) * maxRating;
       const roundedRating = Math.round(rawRating * 2) / 2;
       
+      // Update visual fill without spring during drag for zero-latency response
       if (ratingSv.value !== roundedRating) {
-         applyRating(roundedRating, false); // No animation during active drag for low latency
+         applyRating(roundedRating, false); 
       }
     })
     .onEnd(() => {
-        // Final snap on release
+        // Smoothly snap to the final rating position on release
         const targetWidth = (ratingSv.value / maxRating) * containerWidth;
         width.value = withSpring(targetWidth, { damping: 50, stiffness: 400 });
     });
 
+  // Composed style for the foreground fill clipping mask
   const animatedFillStyle = useAnimatedStyle(() => {
     return {
       width: width.value,
     };
   });
 
-  // Combine gestures so they don't fight
+  // Combine gestures so tap and pan can coexist without conflict
   const composed = Gesture.Exclusive(pan, tap);
+
+  // Dynamic vertical padding based on star size to ensure balanced layout
+  const containerHeight = size + 20; 
 
   return (
     <View style={styles.outerContainer}>
         <GestureDetector gesture={composed}>
-            <View style={[styles.container, { width: containerWidth }]}>
-                {/* Background Slider Track */}
+            <View style={[styles.container, { width: containerWidth, height: containerHeight }]}>
+                
+                {/* Dynamic Slider Track (Background Progress Bar) */}
                 {showSliderBackground && (
-                    <View style={[styles.sliderTrack, { width: containerWidth }]}>
+                    <View style={[styles.sliderTrack, { 
+                        width: containerWidth, 
+                        height: size * 1.4, // Slightly smaller than stars for a layered look
+                        borderRadius: (size * 0.8) / 2,
+                    }]}>
                         <Animated.View 
                             style={[
                                 styles.sliderFill, 
@@ -130,7 +148,7 @@ export const RatingSwipe: React.FC<RatingSwipeProps> = ({
                     </View>
                 )}
 
-                {/* Background Layer: Empty Stars */}
+                {/* Background Layer: Render the empty star outlines */}
                 <View style={styles.starRow}>
                 {Array.from({ length: maxRating }).map((_, i) => (
                     <View key={i} style={[styles.starSlot, { width: slotWidth }]}>
@@ -139,7 +157,7 @@ export const RatingSwipe: React.FC<RatingSwipeProps> = ({
                 ))}
                 </View>
 
-                {/* Foreground Layer: Active Stars with clipping fill */}
+                {/* Foreground Layer: Render the active filled stars with a clipping mask */}
                 <Animated.View style={[styles.fillOverlay, animatedFillStyle]}>
                     <View style={[styles.starRow, { width: containerWidth }]} pointerEvents="none">
                         {Array.from({ length: maxRating }).map((_, i) => (
@@ -151,6 +169,8 @@ export const RatingSwipe: React.FC<RatingSwipeProps> = ({
                 </Animated.View>
             </View>
         </GestureDetector>
+        
+        {/* Rating Label Display */}
         <Text style={styles.ratingText}>{jsRating.toFixed(1)} / {maxRating}</Text>
     </View>
   );
@@ -161,17 +181,17 @@ const styles = StyleSheet.create({
       alignItems: 'center',
   },
   container: {
-    height: 60,
     justifyContent: 'center',
+    alignItems: 'center',
     position: 'relative',
-    borderRadius: 12,
+    backgroundColor: 'transparent',
   },
   starRow: {
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
     height: '100%',
-    position: 'absolute', // Ensures perfect stacking
+    position: 'absolute', 
     top: 0,
     left: 0,
   },
@@ -190,11 +210,7 @@ const styles = StyleSheet.create({
   },
   sliderTrack: {
     position: 'absolute',
-    left: 0,
-    top: 15, // Precisely vertically centered (container 60, track 30)
-    bottom: 15,
     backgroundColor: '#F3F4F6',
-    borderRadius: 8,
     overflow: 'hidden',
   },
   sliderFill: {
