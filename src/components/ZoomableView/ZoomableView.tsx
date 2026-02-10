@@ -1,20 +1,26 @@
 import React from 'react';
-import { StyleSheet, View, type ViewProps } from 'react-native';
-
+import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 
-interface ZoomableViewProps extends ViewProps {
+export interface ZoomableViewProps extends ViewProps {
   children: React.ReactNode;
   maxScale?: number;
   minScale?: number;
+  /** Style for the inner animated content container */
+  contentContainerStyle?: ViewStyle;
 }
 
+/**
+ * A highly optimized pinch-to-zoom container.
+ * Automatically fills the parent container and handles layout transitions.
+ */
 export const ZoomableView: React.FC<ZoomableViewProps> = ({
   children,
   maxScale = 3,
   minScale = 1,
   style,
+  contentContainerStyle,
   ...props
 }) => {
   const scale = useSharedValue(1);
@@ -45,7 +51,7 @@ export const ZoomableView: React.FC<ZoomableViewProps> = ({
   return (
     <View style={[styles.container, style]} {...props}>
       <GestureDetector gesture={pinchGesture}>
-        <Animated.View style={[styles.content, animatedStyle]}>
+        <Animated.View style={[styles.content, contentContainerStyle, animatedStyle]}>
           {children}
         </Animated.View>
       </GestureDetector>
@@ -55,6 +61,7 @@ export const ZoomableView: React.FC<ZoomableViewProps> = ({
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1, // Ensure it fills the parent container (e.g. the 200px Box)
     overflow: 'hidden',
   },
   content: {
