@@ -78,6 +78,7 @@ export default function OtpTestScreen() {
 
   // BottomSheet State
   const [isSheetVisible, setIsSheetVisible] = useState(false);
+  const [sheetMode, setSheetMode] = useState<'standard' | 'snap'>('standard');
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 10000);
@@ -210,8 +211,14 @@ export default function OtpTestScreen() {
             <Box mb={40} width="100%">
                 <Heading level={5} style={{ marginBottom: 15 }}>4. Overlays & Menus</Heading>
                 <SmartButton 
-                    title="Open Bottom Sheet" 
-                    onPress={() => setIsSheetVisible(true)} 
+                    title="Open Standard Sheet (50%)" 
+                    onPress={() => { setSheetMode('standard'); setIsSheetVisible(true); }} 
+                    style={{ marginBottom: 12 }}
+                />
+                <SmartButton 
+                    title="Open Snap Sheet (40%, 90%)" 
+                    variant="outlined"
+                    onPress={() => { setSheetMode('snap'); setIsSheetVisible(true); }} 
                     style={{ marginBottom: 20 }}
                 />
             </Box>
@@ -357,13 +364,16 @@ export default function OtpTestScreen() {
         <BottomSheet 
             visible={isSheetVisible} 
             onClose={() => setIsSheetVisible(false)}
-            title="Aura Bottom Sheet"
+            title={sheetMode === 'standard' ? "Standard Sheet" : "Multi-Snap Sheet"}
+            snapPoints={sheetMode === 'standard' ? [0.5] : [0.4, 0.9]}
         >
             <Box p={20}>
                 <Text color="#4B5563" style={{ marginBottom: 20 }}>
-                    This is a highly optimized, gesture-driven bottom sheet. Swipe down to dismiss.
+                    {sheetMode === 'standard' 
+                        ? "This sheet opens to a fixed 50% height." 
+                        : "Try swiping this sheet up to expand to 90% or down to snap at 40%."}
                 </Text>
-                <SmartButton title="Confirm Action" onPress={() => setIsSheetVisible(false)} />
+                <SmartButton title="Close Sheet" onPress={() => setIsSheetVisible(false)} />
             </Box>
         </BottomSheet>
 
