@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   StyleSheet, 
   View, 
@@ -8,7 +8,8 @@ import {
   TouchableWithoutFeedback, 
   Keyboard,
   ScrollView,
-  Alert
+  Alert,
+  Image
 } from 'react-native';
 import { 
   OtpInput, 
@@ -41,7 +42,13 @@ import {
   SearchField,
   CreditCardInput,
   PhoneInput,
-  Spinner
+  Spinner,
+  BottomSheet,
+  FloatMenu,
+  ImageComparer,
+  SmartImage,
+  ZoomableView,
+  HapticTab
 } from 'rn-aura';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -68,6 +75,9 @@ export default function OtpTestScreen() {
   // Phone Input State
   const [phoneVal, setPhoneVal] = useState('');
   const [country, setCountry] = useState({ code: '+1', flag: '🇺🇸' });
+
+  // BottomSheet State
+  const [isSheetVisible, setIsSheetVisible] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 10000);
@@ -171,9 +181,44 @@ export default function OtpTestScreen() {
                 </Box>
             </Box>
 
-            {/* 3. Modern Selection */}
+            {/* 3. Media & Visuals */}
             <Box mb={40} width="100%">
-                <Heading level={5} style={{ marginBottom: 15 }}>3. Modern Selection</Heading>
+                <Heading level={5} style={{ marginBottom: 15 }}>3. Media & Zoom</Heading>
+                <Box mb={20} style={{ borderRadius: 16, overflow: 'hidden', height: 200 }}>
+                    <ImageComparer 
+                        leftImage="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800"
+                        rightImage="https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?w=800"
+                        height={200}
+                    />
+                </Box>
+                <Box mb={20} bg="#F3F4F6" style={{ borderRadius: 16, overflow: 'hidden', height: 200 }}>
+                    <ZoomableView>
+                        <SmartImage 
+                            source={{ uri: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=800' }}
+                            style={{ width: '100%', height: '100%' }}
+                            resizeMode="cover"
+                        />
+                    </ZoomableView>
+                </Box>
+                <Row gap={15} justify="center">
+                    <HapticTab label="Tab 1" selected onPress={() => {}} />
+                    <HapticTab label="Tab 2" onPress={() => {}} />
+                </Row>
+            </Box>
+
+            {/* 4. Overlay & Menus */}
+            <Box mb={40} width="100%">
+                <Heading level={5} style={{ marginBottom: 15 }}>4. Overlays & Menus</Heading>
+                <SmartButton 
+                    title="Open Bottom Sheet" 
+                    onPress={() => setIsSheetVisible(true)} 
+                    style={{ marginBottom: 20 }}
+                />
+            </Box>
+
+            {/* 5. Modern Selection */}
+            <Box mb={40} width="100%">
+                <Heading level={5} style={{ marginBottom: 15 }}>5. Modern Selection</Heading>
                 <Box mb={20}>
                     <Text weight="600" style={{ marginBottom: 10 }}>Radio Group</Text>
                     <RadioGroup 
@@ -189,9 +234,9 @@ export default function OtpTestScreen() {
                 </Box>
             </Box>
 
-            {/* 4. Loading States */}
+            {/* 6. Loading States */}
             <Box mb={40} width="100%">
-                <Heading level={5} style={{ marginBottom: 15 }}>4. Loading & Spinners</Heading>
+                <Heading level={5} style={{ marginBottom: 15 }}>6. Loading & Spinners</Heading>
                 <Row gap={30} align="center" justify="center">
                     <Spinner size={30} color="#4F46E5" />
                     <Spinner size={40} color="#10B981" />
@@ -199,24 +244,24 @@ export default function OtpTestScreen() {
                 </Row>
             </Box>
 
-            {/* 5. Floating Input */}
+            {/* 7. Floating Input */}
             <Box mb={40} width="100%">
-              <Heading level={5} style={{ marginBottom: 15 }}>5. Floating Input</Heading>
+              <Heading level={5} style={{ marginBottom: 15 }}>7. Floating Input</Heading>
               <FloatingInput label="Email Address" value={email} onChangeText={setEmail} placeholder="Enter your email" />
             </Box>
 
-            {/* 6. Currency Input */}
+            {/* 8. Currency Input */}
             <Box mb={40} width="100%">
-                <Heading level={5} style={{ marginBottom: 15 }}>6. Currency Input (Multi-Symbol)</Heading>
+                <Heading level={5} style={{ marginBottom: 15 }}>8. Currency Input (Multi-Symbol)</Heading>
                 <CurrencyInput 
                     value={amount} onChangeValue={setAmount} placeholder="0.00"
                     currencies={[{ symbol: '$', locale: 'en-US' }, { symbol: '₹', locale: 'en-IN' }]}
                 />
             </Box>
 
-            {/* 7. Progress & Indicators */}
+            {/* 9. Progress & Indicators */}
             <Box mb={40} width="100%">
-                <Heading level={5} style={{ marginBottom: 15 }}>7. Progress & Indicators</Heading>
+                <Heading level={5} style={{ marginBottom: 15 }}>9. Progress & Indicators</Heading>
                 <Row gap={15} align="center" style={{ marginBottom: 20 }}>
                     <ProgressCircle progress={0.65} size={60} color="#4F46E5" />
                     <Box flex={1}>
@@ -229,9 +274,27 @@ export default function OtpTestScreen() {
                 </Row>
             </Box>
 
-            {/* 8. Visual Feedback */}
+            {/* 10. Social & Avatars */}
             <Box mb={40} width="100%">
-                <Heading level={5} style={{ marginBottom: 15 }}>8. Visual Feedback</Heading>
+                <Heading level={5} style={{ marginBottom: 15 }}>10. Social & Avatars</Heading>
+                <Row justify="space-between" align="center">
+                    <AvatarStack 
+                        avatars={[
+                            'https://i.pravatar.cc/100?u=1',
+                            'https://i.pravatar.cc/100?u=2',
+                            'https://i.pravatar.cc/100?u=3',
+                            'https://i.pravatar.cc/100?u=4',
+                        ]}
+                        size={40}
+                        limit={3}
+                    />
+                    <Text size={14} color="#4B5563" weight="600">+12 others active</Text>
+                </Row>
+            </Box>
+
+            {/* 11. Visual Feedback */}
+            <Box mb={40} width="100%">
+                <Heading level={5} style={{ marginBottom: 15 }}>11. Visual Feedback</Heading>
                 <Box bg="#F3F4F6" p={12} style={{ borderRadius: 12, overflow: 'hidden', marginBottom: 15 }}>
                     <Marquee text="🚀 RN Aura is building the future of React Native UI kits! " speed={40} />
                 </Box>
@@ -244,9 +307,9 @@ export default function OtpTestScreen() {
                 </Row>
             </Box>
 
-            {/* 9. Layout & Navigation */}
+            {/* 12. Layout & Navigation */}
             <Box mb={40} width="100%">
-                <Heading level={5} style={{ marginBottom: 15 }}>9. Tabs & Accordion</Heading>
+                <Heading level={5} style={{ marginBottom: 15 }}>12. Tabs & Dynamic Content</Heading>
                 <Tabs tabs={[{ key: 0, title: 'Overview' }, { key: 1, title: 'Details' }, { key: 2, title: 'Reviews' }]} activeKey={activeTab} onChange={setActiveTab} style={{ marginBottom: 15 }} />
                 <Box style={{ minHeight: 120 }}>{renderTabContent()}</Box>
                 <Box mt={20}>
@@ -260,34 +323,28 @@ export default function OtpTestScreen() {
                                 <Chip label="Fabric Ready" variant="outlined" color="#3B82F6" />
                                 <Chip label="Modern Design" variant="outlined" color="#6366F1" />
                             </Row>
-                            <SmartButton 
-                                title="Learn More" 
-                                variant="outlined" 
-                                style={{ minHeight: 40, paddingVertical: 8 }} 
-                                onPress={() => Alert.alert('Navigating to docs...')}
-                            />
                         </Box>
                     </AccordionItem>
                     <Box mt={15}><StepTracker steps={['Start', 'Build', 'Launch']} currentStep={1} activeColor="#4F46E5" /></Box>
                 </Box>
             </Box>
 
-            {/* 10. Interaction Row */}
+            {/* 13. Interaction Row */}
             <Box mb={40} width="100%">
-              <Heading level={5} style={{ marginBottom: 15 }}>10. Switches & Checkboxes</Heading>
+              <Heading level={5} style={{ marginBottom: 15 }}>13. Switches & Checkboxes</Heading>
               <Row justify="space-between" style={{ marginBottom: 15, padding: 10, backgroundColor: '#F9FAFB', borderRadius: 12 }}><Text weight="600">Fluid Switch</Text><FluidSwitch value={switchVal} onValueChange={setSwitchVal} /></Row>
               <Row justify="space-between" style={{ padding: 10, backgroundColor: '#F9FAFB', borderRadius: 12 }}><Text weight="600">Bouncing Checkbox</Text><BouncingCheckbox checked={checked} onChange={setChecked} /></Row>
             </Box>
 
-            {/* 11. Rating Swipe */}
+            {/* 14. Rating Swipe */}
             <Box mb={40} width="100%">
-              <Heading level={5} style={{ marginBottom: 15 }}>11. Rating Swipe</Heading>
+              <Heading level={5} style={{ marginBottom: 15 }}>14. Rating Swipe</Heading>
               <RatingSwipe onRatingChange={(r) => setRating(r)} initialRating={rating} showSliderBackground />
             </Box>
 
-            {/* 12. Buttons */}
+            {/* 15. Buttons */}
             <Box mb={40} width="100%">
-              <Heading level={5} style={{ marginBottom: 15 }}>12. Premium Buttons</Heading>
+              <Heading level={5} style={{ marginBottom: 15 }}>15. Premium Buttons</Heading>
               <Column gap={15}>
                 <SmartButton title="Smart Button (Confetti)" onPress={triggerConfetti} />
                 <SwipeButton title="Slide to Confirm" onComplete={() => Alert.alert('Swipe Complete!')} />
@@ -296,6 +353,28 @@ export default function OtpTestScreen() {
 
           </ScrollView>
         </KeyboardAvoidingView>
+
+        <BottomSheet 
+            visible={isSheetVisible} 
+            onClose={() => setIsSheetVisible(false)}
+            title="Aura Bottom Sheet"
+        >
+            <Box p={20}>
+                <Text color="#4B5563" style={{ marginBottom: 20 }}>
+                    This is a highly optimized, gesture-driven bottom sheet. Swipe down to dismiss.
+                </Text>
+                <SmartButton title="Confirm Action" onPress={() => setIsSheetVisible(false)} />
+            </Box>
+        </BottomSheet>
+
+        <FloatMenu 
+            triggerIcon={<Icon name="add" size={30} color="#FFF" />}
+            actions={[
+                { icon: <Icon name="camera" size={20} color="#FFF" />, label: 'Camera', onPress: () => Alert.alert('Camera opened') },
+                { icon: <Icon name="image" size={20} color="#FFF" />, label: 'Gallery', onPress: () => Alert.alert('Gallery opened') },
+            ]}
+        />
+
       </SafeAreaView>
     </GestureHandlerRootView>
   );

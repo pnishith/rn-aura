@@ -52,8 +52,8 @@ export default function MediaScreen() {
         <Box mb={30}>
           <Heading level={5} style={{ marginBottom: 10 }}>Image Comparer</Heading>
           <ImageComparer
-            beforeImage={{ uri: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800' }}
-            afterImage={{ uri: 'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?w=800' }}
+            leftImage="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800"
+            rightImage="https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?w=800"
             height={200}
           />
         </Box>
