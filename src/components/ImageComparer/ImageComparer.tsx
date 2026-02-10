@@ -14,6 +14,7 @@ import Animated, {
   useAnimatedStyle, 
   withTiming,
 } from 'react-native-reanimated';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 export interface ImageComparerProps {
   /** The image shown on the left (or "before" state) */
@@ -32,6 +33,8 @@ export interface ImageComparerProps {
   rightLabel?: string;
   /** Color of the slider handle. Defaults to "#FFF" */
   handleColor?: string;
+  /** Custom icon component for the slider knob */
+  knobIcon?: React.ReactNode;
 }
 
 /**
@@ -47,6 +50,7 @@ export const ImageComparer: React.FC<ImageComparerProps> = ({
   leftLabel = "Before",
   rightLabel = "After",
   handleColor = "#FFFFFF",
+  knobIcon,
 }) => {
   const [layoutWidth, setLayoutWidth] = useState(0);
   const position = useSharedValue(0);
@@ -78,10 +82,14 @@ export const ImageComparer: React.FC<ImageComparerProps> = ({
     width: position.value,
   }));
 
-  const rLabelOpacity = useAnimatedStyle(() => ({
-      // Hide labels when handle is too close to edges
-      opacity: position.value < 40 || position.value > layoutWidth - 40 ? withTiming(0, { duration: 150 }) : withTiming(1, { duration: 150 }),
-  }));
+  // Hide labels when handle overlaps them
+  const rLabelOpacity = useAnimatedStyle(() => {
+    // 90px buffer from edge
+    const isOverlapping = position.value < 90 || position.value > (layoutWidth - 90);
+    return {
+      opacity: withTiming(isOverlapping ? 0 : 1, { duration: 150 }),
+    };
+  });
 
   return (
     <View style={[styles.container, { height }, style]} onLayout={onLayout}>
@@ -90,11 +98,12 @@ export const ImageComparer: React.FC<ImageComparerProps> = ({
         source={rightSource as ImageSourcePropType} 
         style={[StyleSheet.absoluteFill, styles.image]} 
       />
-      <View style={[styles.labelContainer, styles.rightLabelPos]} pointerEvents="none">
-        <Animated.View style={rLabelOpacity}>
-            <Text style={styles.labelText}>{rightLabel}</Text>
-        </Animated.View>
-      </View>
+      <Animated.View 
+        style={[styles.labelContainer, styles.rightLabelPos, rLabelOpacity]} 
+        pointerEvents="none"
+      >
+        <Text style={styles.labelText}>{rightLabel}</Text>
+      </Animated.View>
 
       {/* Left Image (Foreground with clipping) */}
       <Animated.View style={[styles.leftImageContainer, rLeftImageContainerStyle]}>
@@ -102,11 +111,9 @@ export const ImageComparer: React.FC<ImageComparerProps> = ({
           source={leftSource as ImageSourcePropType}
           style={[styles.image, { width: layoutWidth, height }]}
         />
-        <View style={styles.labelContainer} pointerEvents="none">
-            <Animated.View style={rLabelOpacity}>
-                <Text style={styles.labelText}>{leftLabel}</Text>
-            </Animated.View>
-        </View>
+        <Animated.View style={[styles.labelContainer, rLabelOpacity]} pointerEvents="none">
+            <Text style={styles.labelText}>{leftLabel}</Text>
+        </Animated.View>
       </Animated.View>
 
       {/* Slider Gesture Area */}
@@ -118,7 +125,7 @@ export const ImageComparer: React.FC<ImageComparerProps> = ({
           {/* Slider Knob */}
           <Animated.View style={[styles.handleKnob, { borderColor: handleColor }, rHandleStyle]}>
             <View style={styles.knobInner}>
-              <Text style={styles.knobArrow}>⇠⇢</Text>
+              {knobIcon || <Icon name="swap-horizontal" size={24} color="#111827" />}
             </View>
           </Animated.View>
         </View>
@@ -199,10 +206,5 @@ const styles = StyleSheet.create({
   knobInner: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  knobArrow: {
-    fontSize: 16,
-    color: '#111827',
-    fontWeight: '700',
   }
 });
