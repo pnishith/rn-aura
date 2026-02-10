@@ -1,117 +1,206 @@
-import React, { useCallback, useImperativeHandle, forwardRef } from 'react';
-import { Dimensions, StyleSheet, View, type ViewStyle } from 'react-native';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import { Dimensions, StyleSheet, View, Pressable, Text, type ViewStyle } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
   withTiming,
+  runOnJS,
+  interpolate,
+  Extrapolation,
 } from 'react-native-reanimated';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const MAX_TRANSLATE_Y = -SCREEN_HEIGHT + 50;
 
-export interface BottomSheetRef {
-  scrollTo: (destination: number) => void;
-  isActive: () => boolean;
-}
-
-interface BottomSheetProps {
+export interface BottomSheetProps {
+  /** Visibility toggle */
+  visible: boolean;
+  /** Callback triggered when the sheet should close */
+  onClose: () => void;
+  /** Title shown at the top of the sheet */
+  title?: string;
+  /** Content to render inside the sheet */
   children?: React.ReactNode;
-  snapPoints?: number[]; // percentage of screen height, e.g. [0.2, 0.5, 0.9]
-  initialSnapIndex?: number;
+  /** Snap points as percentage of screen height. Defaults to [0.5] */
+  snapPoints?: number[];
+  /** Custom style for the sheet container */
   style?: ViewStyle;
 }
 
-export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
-  ({ children, snapPoints = [0.25, 0.5], initialSnapIndex = 0, style }, ref) => {
-    const translateY = useSharedValue(0);
-    const active = useSharedValue(false);
-    const context = useSharedValue({ y: 0 });
+/**
+ * A production-grade Bottom Sheet with smooth gesture-driven interactions,
+ * backdrop support, and spring physics.
+ */
+export const BottomSheet: React.FC<BottomSheetProps> = ({ 
+  visible, 
+  onClose, 
+  children, 
+  style,
+  title,
+  snapPoints = [0.5],
+}) => {
+  const [shouldRender, setShouldRender] = useState(visible);
+  
+  // Animation shared values
+  const translateY = useSharedValue(SCREEN_HEIGHT);
+  const activeSnapPoint = useSharedValue(SCREEN_HEIGHT);
 
-    const scrollTo = useCallback((destination: number) => {
-      'worklet';
-      active.value = destination !== 0;
-      translateY.value = withSpring(destination, { damping: 50 });
-    }, []);
+  // Cast snapPoints to numbers to prevent TypeError
+  const snaps = useMemo(() => {
+    const points = snapPoints.length > 0 ? snapPoints : [0.5];
+    return points
+        .map(p => SCREEN_HEIGHT * (1 - Number(p)))
+        .sort((a, b) => a - b);
+  }, [snapPoints]);
 
-    useImperativeHandle(ref, () => ({
-      scrollTo,
-      isActive: () => active.value,
-    }));
+  const closeSheet = useCallback(() => {
+    translateY.value = withTiming(SCREEN_HEIGHT, { duration: 300 }, () => {
+      runOnJS(setShouldRender)(false);
+      runOnJS(onClose)();
+    });
+  }, [onClose, translateY]);
 
-    const gesture = Gesture.Pan()
-      .onStart(() => {
-        context.value = { y: translateY.value };
-      })
-      .onUpdate((event) => {
-        translateY.value = event.translationY + context.value.y;
-        translateY.value = Math.max(translateY.value, MAX_TRANSLATE_Y);
-      })
-      .onEnd(() => {
-        // Find nearest snap point
-        // This is a simplified logic, ideally use velocity too
-        // For now, let's just snap to 0 (closed) or the provided points
-        // NOTE: This simple implementation needs more robust snap point math for production
-        // mapping percentages to pixels
-        if (translateY.value > -100) {
-           scrollTo(0);
-        } else {
-             // Snap to first point for simplicity in this demo
-             const firstSnap = snapPoints?.[0] ?? 0.25;
-             scrollTo(-SCREEN_HEIGHT * firstSnap);
-        }
+  useEffect(() => {
+    if (visible) {
+      setShouldRender(true);
+      const targetSnap = snaps[0] ?? SCREEN_HEIGHT * 0.5;
+      translateY.value = withSpring(targetSnap, { damping: 20, stiffness: 150 });
+    } else {
+      translateY.value = withTiming(SCREEN_HEIGHT, { duration: 250 }, () => {
+        runOnJS(setShouldRender)(false);
       });
+    }
+  }, [visible, snaps, translateY]);
 
-    const animatedStyle = useAnimatedStyle(() => {
-      return {
-        transform: [{ translateY: translateY.value }],
-      };
+  const panGesture = Gesture.Pan()
+    .onStart(() => {
+        activeSnapPoint.value = translateY.value;
+    })
+    .onUpdate((e) => {
+      translateY.value = activeSnapPoint.value + e.translationY;
+      // Rubber-banding on top
+      if (translateY.value < snaps[0]!) {
+          translateY.value = snaps[0]! + (e.translationY * 0.2);
+      }
+    })
+    .onEnd((e) => {
+      const currentPos = translateY.value;
+      const velocity = e.velocityY;
+
+      // Close if swiped down fast
+      if (velocity > 500) {
+        runOnJS(closeSheet)();
+        return;
+      }
+
+      // Snap to nearest point
+      if (snaps.length > 0) {
+          const nearestPoint = snaps.reduce((prev, curr) => 
+            Math.abs(curr - currentPos) < Math.abs(prev - currentPos) ? curr : prev
+          );
+
+          // Close if significantly below the lowest snap point
+          if (currentPos > SCREEN_HEIGHT * 0.85) {
+            runOnJS(closeSheet)();
+          } else {
+            translateY.value = withSpring(nearestPoint, { damping: 40, stiffness: 400 });
+          }
+      } else {
+          runOnJS(closeSheet)();
+      }
     });
 
-    // Initialize
-    React.useEffect(() => {
-        // scrollTo(-SCREEN_HEIGHT * snapPoints[initialSnapIndex]); 
-        // Delaying init or manual trigger might be better, but let's leave it 0 (hidden/peeking) for now
-        const snapIndex = Math.min(initialSnapIndex, (snapPoints?.length ?? 1) - 1);
-        const snapPoint = snapPoints?.[snapIndex] ?? 0.25;
-        translateY.value = withTiming(-SCREEN_HEIGHT * snapPoint);
-    }, []);
+  const rSheetStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
 
-    return (
-      <GestureDetector gesture={gesture}>
-        <Animated.View style={[styles.bottomSheetContainer, style, animatedStyle]}>
-          <View style={styles.line} />
-          {children}
+  const rBackdropStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      translateY.value,
+      [SCREEN_HEIGHT, snaps[0] || SCREEN_HEIGHT / 2],
+      [0, 1],
+      Extrapolation.CLAMP
+    ),
+  }));
+
+  if (!shouldRender) return null;
+
+  return (
+    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+      {/* Backdrop */}
+      <Animated.View style={[styles.backdrop, rBackdropStyle]}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+      </Animated.View>
+
+      {/* Sheet Content */}
+      <GestureDetector gesture={panGesture}>
+        <Animated.View style={[styles.sheet, style, rSheetStyle]}>
+          <View style={styles.handleContainer}>
+            <View style={styles.handle} />
+          </View>
+          
+          {title && (
+            <View style={styles.titleContainer}>
+              <Text style={styles.titleText}>{title}</Text>
+            </View>
+          )}
+
+          <View style={styles.content}>
+            {children}
+          </View>
         </Animated.View>
       </GestureDetector>
-    );
-  }
-);
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-  bottomSheetContainer: {
-    height: SCREEN_HEIGHT,
-    width: '100%',
-    backgroundColor: 'white',
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    zIndex: 100,
+  },
+  sheet: {
     position: 'absolute',
-    top: SCREEN_HEIGHT,
-    borderRadius: 25,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: SCREEN_HEIGHT,
+    backgroundColor: '#FFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: -2,
-    },
+    shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 5,
+    shadowRadius: 10,
+    elevation: 20,
+    zIndex: 101,
   },
-  line: {
-    width: 75,
-    height: 4,
-    backgroundColor: '#E5E5EA',
-    alignSelf: 'center',
-    marginVertical: 15,
-    borderRadius: 2,
+  handleContainer: {
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+  handle: {
+    width: 40,
+    height: 5,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 2.5,
+  },
+  titleContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  titleText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#111827',
+    textAlign: 'center',
+  },
+  content: {
+    flex: 1,
+  }
 });
