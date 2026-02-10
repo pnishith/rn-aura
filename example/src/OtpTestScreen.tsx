@@ -60,11 +60,14 @@ export default function OtpTestScreen() {
   const [activeTab, setActiveTab] = useState(0);
   const [segmentedIdx, setSegmentedIdx] = useState(0);
 
-  // States for 5 NEW components
+  // States for inputs
   const [radioVal, setRadioVal] = useState('Option 1');
   const [searchVal, setSearchVal] = useState('');
   const [cardVal, setCardVal] = useState('');
+  
+  // Phone Input State
   const [phoneVal, setPhoneVal] = useState('');
+  const [country, setCountry] = useState({ code: '+1', flag: '🇺🇸' });
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 10000);
@@ -79,6 +82,14 @@ export default function OtpTestScreen() {
   const triggerConfetti = () => {
     setShowConfetti(true);
     setTimeout(() => setShowConfetti(false), 100);
+  };
+
+  const toggleCountry = () => {
+    if (country.code === '+1') {
+        setCountry({ code: '+91', flag: '🇮🇳' });
+    } else {
+        setCountry({ code: '+1', flag: '🇺🇸' });
+    }
   };
 
   const renderTabContent = () => {
@@ -136,7 +147,7 @@ export default function OtpTestScreen() {
               {otpError && <Text color="#EF4444" size={12} style={{ marginTop: 10, fontWeight: '600' }}>Invalid code. Try 1234.</Text>}
             </Box>
 
-            {/* 2. Advanced Form Inputs (NEW) */}
+            {/* 2. Advanced Form Inputs */}
             <Box mb={40} width="100%">
                 <Heading level={5} style={{ marginBottom: 15 }}>2. Advanced Form Inputs</Heading>
                 <Box mb={20}>
@@ -144,8 +155,15 @@ export default function OtpTestScreen() {
                     <CreditCardInput value={cardVal} onChangeText={setCardVal} placeholder="0000 0000 0000 0000" />
                 </Box>
                 <Box mb={20}>
-                    <Text weight="600" style={{ marginBottom: 8 }}>Phone Input</Text>
-                    <PhoneInput value={phoneVal} onChangeText={setPhoneVal} placeholder="555-0123" />
+                    <Text weight="600" style={{ marginBottom: 8 }}>Production Phone Input (Tap Flag)</Text>
+                    <PhoneInput 
+                        value={phoneVal} 
+                        onChangePhone={setPhoneVal} 
+                        placeholder="555-0123" 
+                        countryCode={country.code}
+                        onCountryPress={toggleCountry}
+                        flagComponent={<Text style={{fontSize: 18}}>{country.flag}</Text>}
+                    />
                 </Box>
                 <Box>
                     <Text weight="600" style={{ marginBottom: 8 }}>Search Field</Text>
@@ -153,7 +171,7 @@ export default function OtpTestScreen() {
                 </Box>
             </Box>
 
-            {/* 3. Modern Selection (NEW) */}
+            {/* 3. Modern Selection */}
             <Box mb={40} width="100%">
                 <Heading level={5} style={{ marginBottom: 15 }}>3. Modern Selection</Heading>
                 <Box mb={20}>
@@ -171,7 +189,7 @@ export default function OtpTestScreen() {
                 </Box>
             </Box>
 
-            {/* 4. Loading States (NEW) */}
+            {/* 4. Loading States */}
             <Box mb={40} width="100%">
                 <Heading level={5} style={{ marginBottom: 15 }}>4. Loading & Spinners</Heading>
                 <Row gap={30} align="center" justify="center">
@@ -248,24 +266,6 @@ export default function OtpTestScreen() {
                                 style={{ minHeight: 40, paddingVertical: 8 }} 
                                 onPress={() => Alert.alert('Navigating to docs...')}
                             />
-                        </Box>
-                    </AccordionItem>
-                    <AccordionItem title="System Requirements">
-                        <Box p={5}>
-                            <Column gap={10}>
-                                <Row gap={10}>
-                                    <Icon name="checkmark-circle" size={18} color="#10B981" />
-                                    <Text size={14}>React Native 0.71+</Text>
-                                </Row>
-                                {/* <Row gap={10}>
-                                    <Icon name="checkmark-circle" size={18} color="#10B981" />
-                                    <Text size={14}>Reanimated 3.0+</Text>
-                                </Row> */}
-                                {/* <Row gap={10}>
-                                    <Icon name="checkmark-circle" size={18} color="#10B981" />
-                                    <Text size={14}>Gesture Handler 2.0+</Text>
-                                </Row> */}
-                            </Column>
                         </Box>
                     </AccordionItem>
                     <Box mt={15}><StepTracker steps={['Start', 'Build', 'Launch']} currentStep={1} activeColor="#4F46E5" /></Box>
