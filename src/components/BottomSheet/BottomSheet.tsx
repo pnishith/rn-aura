@@ -30,7 +30,7 @@ export interface BottomSheetProps {
 
 /**
  * A production-grade Bottom Sheet with smooth gesture-driven interactions,
- * backdrop support, and spring physics.
+ * backdrop support, and ultra-snappy spring physics.
  */
 export const BottomSheet: React.FC<BottomSheetProps> = ({ 
   visible, 
@@ -55,7 +55,8 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   }, [snapPoints]);
 
   const closeSheet = useCallback(() => {
-    translateY.value = withTiming(SCREEN_HEIGHT, { duration: 300 }, () => {
+    // Fast exit timing
+    translateY.value = withTiming(SCREEN_HEIGHT, { duration: 200 }, () => {
       runOnJS(setShouldRender)(false);
       runOnJS(onClose)();
     });
@@ -65,9 +66,14 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
     if (visible) {
       setShouldRender(true);
       const targetSnap = snaps[0] ?? SCREEN_HEIGHT * 0.5;
-      translateY.value = withSpring(targetSnap, { damping: 20, stiffness: 150 });
+      // High-stiffness entrance
+      translateY.value = withSpring(targetSnap, { 
+        damping: 20, 
+        stiffness: 250, 
+        mass: 0.5 
+      });
     } else {
-      translateY.value = withTiming(SCREEN_HEIGHT, { duration: 250 }, () => {
+      translateY.value = withTiming(SCREEN_HEIGHT, { duration: 200 }, () => {
         runOnJS(setShouldRender)(false);
       });
     }
@@ -79,32 +85,35 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
     })
     .onUpdate((e) => {
       translateY.value = activeSnapPoint.value + e.translationY;
-      // Rubber-banding on top
+      // High-precision resistance
       if (translateY.value < snaps[0]!) {
-          translateY.value = snaps[0]! + (e.translationY * 0.2);
+          translateY.value = snaps[0]! + (e.translationY * 0.15);
       }
     })
     .onEnd((e) => {
       const currentPos = translateY.value;
       const velocity = e.velocityY;
 
-      // Close if swiped down fast
-      if (velocity > 500) {
+      // Aggressive close on flick
+      if (velocity > 400) {
         runOnJS(closeSheet)();
         return;
       }
 
-      // Snap to nearest point
+      // Snap to nearest point with low mass for speed
       if (snaps.length > 0) {
           const nearestPoint = snaps.reduce((prev, curr) => 
             Math.abs(curr - currentPos) < Math.abs(prev - currentPos) ? curr : prev
           );
 
-          // Close if significantly below the lowest snap point
-          if (currentPos > SCREEN_HEIGHT * 0.85) {
+          if (currentPos > SCREEN_HEIGHT * 0.8) {
             runOnJS(closeSheet)();
           } else {
-            translateY.value = withSpring(nearestPoint, { damping: 40, stiffness: 400 });
+            translateY.value = withSpring(nearestPoint, { 
+                damping: 20, 
+                stiffness: 250, 
+                mass: 0.5 
+            });
           }
       } else {
           runOnJS(closeSheet)();
